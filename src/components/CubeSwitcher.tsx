@@ -179,12 +179,11 @@ export default function CubeSwitcher() {
           <div className="h-full px-6 flex items-center">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
-        
-              <img 
-                src="/src/assets/logo.png"
-                alt="GRC Player"
-                className="h-6 md:h-8 object-contain opacity-90 hover:opacity-100 transition duration-200"
-              />
+                <img 
+                  src={logo}
+                  alt="GRC Logo"
+                  className="h-6 md:h-8 object-contain opacity-90 hover:opacity-100 transition duration-200"
+                />
             </div>
           </div>
         </div>

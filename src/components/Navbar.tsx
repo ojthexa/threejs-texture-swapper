@@ -48,7 +48,7 @@ const Navbar = () => {
               onClick={() => setIsOpen(false)}
               className="text-3xl md:text-5xl font-bold text-foreground hover:text-primary transition-all"
             >
-              3D Viewer
+              GRC Player
             </Link>
           </div>
 

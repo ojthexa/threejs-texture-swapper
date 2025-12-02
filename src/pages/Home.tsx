@@ -18,7 +18,7 @@ type TextureType =
   | "spinach"
   | "shuriken";
 
-const boxNames = ["Kiri", "Tengah", Kanan"];
+const boxNames = ["Panel 1", "Panel 2", "Panel 3"];
 
 /* ------------------------------
    FENCE (3D BOXES)

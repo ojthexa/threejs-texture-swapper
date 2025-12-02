@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 interface Logo3DProps {
   modelPath: string;
@@ -20,8 +20,9 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     // === Camera ===
     const w = mountRef.current.clientWidth;
     const h = mountRef.current.clientHeight;
-    const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
-    camera.position.set(0, 0, 6);
+
+    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+    camera.position.set(0, 0, 7);
 
     // === Renderer ===
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -31,75 +32,75 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     mountRef.current.appendChild(renderer.domElement);
 
     // === Lights ===
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
 
-    const directional = new THREE.DirectionalLight(0xffffff, 1);
-    directional.position.set(3, 5, 8);
-    scene.add(directional);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+    dir.position.set(4, 8, 6);
+    scene.add(dir);
 
-    // === Load GLB ===
+    // === GLB Loader ===
     const loader = new GLTFLoader();
-    let logo: THREE.Group | null = null;
+
+    // Wrapper group agar pivot tepat center
+    const pivot = new THREE.Group();
+    scene.add(pivot);
+
+    let logoMesh: THREE.Group | null = null;
 
     loader.load(
       modelPath,
       (gltf) => {
-        logo = gltf.scene;
-        logo.scale.set(scale, scale, scale);
-        logo.rotation.set(0.1, 0, 0);
+        const model = gltf.scene;
 
-        // Tambah ketebalan (extrusion effect fake)
-        logo.traverse((child: any) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            child.material = new THREE.MeshStandardMaterial({
-              color: child.material.color,
-              metalness: 0.2,
-              roughness: 0.4,
-            });
-          }
-        });
+        // Auto-center model pivot
+        const box = new THREE.Box3().setFromObject(model);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+        model.position.sub(center); // geser model agar center = 0,0,0
 
-        scene.add(logo);
+        model.scale.set(scale, scale, scale);
+
+        logoMesh = model;
+        pivot.add(model);
       },
       undefined,
-      (err) => console.error("GLB load error:", err)
+      (err) => console.error("Failed to load GLB:", err)
     );
 
-    // === Interaction ===
+    // === Animation states ===
     let isHover = false;
     let isHold = false;
     let spinProgress = 0;
 
+    // === DOM Events ===
     const dom = renderer.domElement;
 
-    const handleEnter = () => (isHover = true);
-    const handleLeave = () => {
+    const onEnter = () => (isHover = true);
+    const onLeave = () => {
       isHover = false;
       isHold = false;
       spinProgress = 0;
     };
-    const handleDown = () => (isHold = true);
-    const handleUp = () => (isHold = false);
+    const onDown = () => (isHold = true);
+    const onUp = () => (isHold = false);
 
-    dom.addEventListener("mouseenter", handleEnter);
-    dom.addEventListener("mouseleave", handleLeave);
-    dom.addEventListener("mousedown", handleDown);
-    window.addEventListener("mouseup", handleUp);
+    dom.addEventListener("mouseenter", onEnter);
+    dom.addEventListener("mouseleave", onLeave);
+    dom.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
 
     // === Animation Loop ===
-    const animate = (time: number) => {
-      if (logo) {
+    const animate = (t: number) => {
+      if (logoMesh) {
         if (isHold) {
           spinProgress += 0.12;
-          logo.rotation.y = spinProgress;
+          pivot.rotation.y = spinProgress;
         } else if (isHover) {
-          logo.rotation.y += 0.06;
-          logo.rotation.x = Math.sin(time / 600) * 0.03;
+          pivot.rotation.y += 0.06;
+          pivot.rotation.x = Math.sin(t / 600) * 0.025;
         } else {
-          logo.rotation.y += 0.01;
-          logo.rotation.x += (0 - logo.rotation.x) * 0.05;
+          pivot.rotation.y += 0.015;
+          pivot.rotation.x += (0 - pivot.rotation.x) * 0.05;
         }
       }
 
@@ -110,24 +111,24 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     rafRef.current = requestAnimationFrame(animate);
 
     // === Resize ===
-    const handleResize = () => {
+    const onResize = () => {
       if (!mountRef.current) return;
       const w = mountRef.current.clientWidth;
       const h = mountRef.current.clientHeight;
+
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
+    window.addEventListener("resize", onResize);
 
-    window.addEventListener("resize", handleResize);
-
-    // === Cleanup ===
+    // Cleanup
     return () => {
-      window.removeEventListener("resize", handleResize);
-      dom.removeEventListener("mouseenter", handleEnter);
-      dom.removeEventListener("mouseleave", handleLeave);
-      dom.removeEventListener("mousedown", handleDown);
-      window.removeEventListener("mouseup", handleUp);
+      window.removeEventListener("resize", onResize);
+      dom.removeEventListener("mouseenter", onEnter);
+      dom.removeEventListener("mouseleave", onLeave);
+      dom.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
@@ -140,5 +141,10 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     };
   }, [modelPath, scale]);
 
-  return <div ref={mountRef} className="w-[260px] h-[260px]" />;
+  return (
+    <div
+      ref={mountRef}
+      className="w-full h-[320px] md:h-[380px] lg:h-[420px]"
+    />
+  );
 }

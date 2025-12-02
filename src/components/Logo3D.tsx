@@ -35,33 +35,38 @@ export default function Logo3D({ modelPath }) {
 
   const loader = new GLTFLoader();
   loader.load(modelPath, (gltf) => {
-  model = gltf.scene;
+    model = gltf.scene;
+  
+    // Normalize pivot
+    const box = new THREE.Box3().setFromObject(model);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    model.position.sub(center);
+  
+    const sphere = new THREE.Sphere();
+    box.getBoundingSphere(sphere);
+  
+    // Stable scale
+    const scaleFactor = (mountRef.current.clientWidth / 150) / sphere.radius;
+    model.scale.setScalar(scaleFactor * 1.5);
+  
+    pivot.add(model);
+  
+    // Recalculate after scale
+    setTimeout(() => {
+      const b = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      b.getSize(size);
+  
+      // 🎯 Accurate pivot shift to section #2 of 5
+      pivot.position.x = -size.x * 0.18;
+    }, 20);
+  
+    const idealDistance = sphere.radius * 3.0;
+    camera.position.set(0, sphere.radius * 0.15, idealDistance);
+    camera.lookAt(0, 0, 0);
+  });
 
-  // Setelah model.scale.setScalar(...)
-  const box2 = new THREE.Box3().setFromObject(model);
-  const size2 = new THREE.Vector3();
-  box2.getSize(size2);
-  pivot.position.x = -size2.x * 0.18;
-
-  const sphere = new THREE.Sphere();
-  box.getBoundingSphere(sphere);
-
-  // 🔥 Scale stabil
-  const scaleFactor = (mountRef.current.clientWidth / 150) / sphere.radius;
-  model.scale.setScalar(scaleFactor * 1.5);
-
-  pivot.add(model);
-
-  // 📌 Geser posisi setelah scale (agar tepat)
-  setTimeout(() => {
-    pivot.position.x = sphere.radius * 0.35;  // lebih aman dari 0.8
-  }, 10);
-
-  // 🔥 Kamera otomatis pas & tidak cropping
-  const idealDistance = sphere.radius * 3.2;
-  camera.position.set(0, sphere.radius * 0.2, idealDistance);
-  camera.lookAt(0, 0, 0);
-});
 
   let isDragging = false;
   let isHover = false;
@@ -179,6 +184,7 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+
 
 
 

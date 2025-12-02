@@ -1,220 +1,64 @@
-import { useState, useMemo, useRef } from "react";
-import { Canvas, useThree, ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, Html, useTexture } from "@react-three/drei";
-import * as THREE from "three";
 import Navbar from "@/components/Navbar";
+import Logo3D from "@/components/Logo3D";
 
-/* ------------------------------
-   TYPES
------------------------------- */
-type TextureType =
-  | "flower"
-  | "mahkota"
-  | "himawari"
-  | "taurus"
-  | "metal"
-  | "sulur"
-  | "ranting"
-  | "spinach"
-  | "shuriken";
-
-const boxNames = ["Panel 1", "Panel 2", "Panel 3"];
-
-/* ------------------------------
-   FENCE (3D BOXES)
------------------------------- */
-function Fence({
-  boxTextures,
-  onBoxClick,
-  hoveredBox,
-  setHoveredBox,
-  selectedBox,
-}: {
-  boxTextures: TextureType[];
-  onBoxClick: (boxIndex: number) => void;
-  hoveredBox: number | null;
-  setHoveredBox: (index: number | null) => void;
-  selectedBox: number | null;
-}) {
-  const boxRefs = [
-    useRef<THREE.Mesh>(null),
-    useRef<THREE.Mesh>(null),
-    useRef<THREE.Mesh>(null),
-  ];
-
-  const textureMap = {
-    flower: useTexture("/flower.jpg"),
-    mahkota: useTexture("/mahkota.jpg"),
-    himawari: useTexture("/himawari.jpg"),
-    taurus: useTexture("/taurus.jpg"),
-    metal: useTexture("/metal.jpg"),
-    sulur: useTexture("/sulur.jpg"),
-    ranting: useTexture("/ranting.avif"),
-    spinach: useTexture("/spinach.avif"),
-    shuriken: useTexture("/shuriken.png"),
-  };
-
-  const textureNames = {
-    flower: "Flower",
-    mahkota: "Mahkota",
-    himawari: "Himawari",
-    taurus: "Taurus",
-    metal: "Metal",
-    sulur: "Sulur",
-    ranting: "Ranting",
-    spinach: "Spinach",
-    shuriken: "Shuriken",
-  };
-
-  const materials = useMemo(() => {
-    return boxTextures.map((key) => {
-      const tex = textureMap[key];
-      tex.wrapS = THREE.RepeatWrapping;
-      tex.wrapT = THREE.RepeatWrapping;
-      tex.repeat.set(3, 2);
-
-      return new THREE.MeshStandardMaterial({
-        map: tex,
-        metalness: 0.3,
-        roughness: 0.7,
-      });
-    });
-  }, [boxTextures]);
-
-  const active = selectedBox ?? hoveredBox;
-
-  return (
-    <>
-      {boxTextures.map((_, i) => (
-        <mesh
-          key={i}
-          ref={boxRefs[i]}
-          material={materials[i]}
-          position={[(i - 1) * 6, 0, 0]}
-          onClick={() => onBoxClick(i)}
-          onPointerMove={() => setHoveredBox(i)}
-          onPointerOut={() => setHoveredBox(null)}
-        >
-          <boxGeometry args={[6, 4, 0.12]} />
-        </mesh>
-      ))}
-
-      {active !== null && (
-        <Html position={[(active - 1) * 6, 3, 0]}>
-          <div className="bg-background/90 px-4 py-2 border border-primary rounded-md text-primary shadow-lg">
-            {boxNames[active]}: {textureNames[boxTextures[active]]}
-          </div>
-        </Html>
-      )}
-    </>
-  );
-}
-
-/* ------------------------------
-   MAIN FULLPAGE VIEW
------------------------------- */
 export default function Home() {
-  const [section, setSection] = useState<"home" | "viewer">("home");
-
-  const [boxTextures, setBoxTextures] = useState<TextureType[]>([
-    "flower",
-    "mahkota",
-    "himawari",
-  ]);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  const goViewer = () => setSection("viewer");
-  const goHome = () => setSection("home");
-
   return (
-    <div className="h-screen w-full overflow-hidden snap-y snap-mandatory relative">
-
-      {/* NAVBAR */}
+    <div className="h-screen w-full overflow-y-auto snap-y snap-mandatory">
       <Navbar />
 
-      {/* ---------------- HOME SECTION ---------------- */}
-      <section
-        className={`h-screen w-full flex items-center justify-center snap-start transition-all duration-700 ease-in-out ${
-          section === "home"
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0 pointer-events-none"
-        }`}
-      >
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">
+      {/* Hero Section */}
+      <section className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
+        
+        {/* Animated background grid */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5">
+          <div className="absolute inset-0 opacity-20">
+            <div className="h-full w-full bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)]" />
+          </div>
+        </div>
+
+        {/* Glowing orbs */}
+        <div className="absolute top-20 left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px] animate-pulse delay-1000" />
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-5xl">
+          
+          {/* 3D Logo */}
+          <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
+            <Logo3D
+              modelPath={import.meta.env.BASE_URL + "models/logo.glb"}
+              scale={3}
+            />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             PROFESSIONAL ARCHITECTURE SOLUTIONS
           </h1>
 
-          <p className="text-lg mb-8 text-muted-foreground">
-            Premium GRC materials for modern architecture.
+          {/* Subtitle */}
+          <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+            Premium GRC materials and structural solutions for modern architecture. 
+            Building excellence with innovation and precision.
           </p>
 
-          <button
-            onClick={goViewer}
-            className="px-8 py-4 bg-primary text-white rounded-lg shadow hover:scale-105 transition"
-          >
-            Explore 3D Viewer
-          </button>
-        </div>
-      </section>
-
-      {/* ---------------- VIEWER 3D SECTION ---------------- */}
-      <section
-        className={`absolute top-0 left-0 h-screen w-full snap-start transition-all duration-700 ease-in-out ${
-          section === "viewer"
-            ? "translate-y-0 opacity-100"
-            : "translate-y-full opacity-0 pointer-events-none"
-        }`}
-      >
-        {/* BACK BUTTON */}
-        <button
-          onClick={goHome}
-          className="absolute z-50 top-6 left-6 px-4 py-2 bg-background border rounded shadow"
-        >
-          ← Back
-        </button>
-
-        {/* TEXTURE SWITCHER PANEL */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 p-4 bg-background/70 backdrop-blur-xl border-t flex gap-3 justify-center">
-          {["flower","mahkota","himawari","taurus","metal","sulur","ranting","spinach","shuriken"].map(
-            (t) => (
-              <button
-                key={t}
-                onClick={() => selected !== null && setBoxTextures((prev) => {
-                  const arr = [...prev];
-                  arr[selected] = t as TextureType;
-                  return arr;
-                })}
-                className={`w-20 h-20 rounded border bg-white overflow-hidden ${
-                  selected !== null && boxTextures[selected] === t
-                    ? "border-primary shadow-lg scale-105"
-                    : "border-muted opacity-80"
-                }`}
-              >
-                <img src={`/${t}.jpg`} className="w-full h-full object-cover" />
-              </button>
-            )
-          )}
+          {/* Button */}
+          <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
+            <a 
+              href="#services" 
+              className="inline-block px-8 py-4 bg-primary text-primary-foreground rounded-lg font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.5)]"
+            >
+              Explore Our Solutions
+            </a>
+          </div>
         </div>
 
-        {/* 3D VIEWER */}
-        <Canvas camera={{ position: [5, 3, 5], fov: 50 }} className="w-full h-full">
-          <color attach="background" args={["#050505"]} />
-
-          <ambientLight intensity={0.6} />
-          <directionalLight intensity={1.2} position={[10, 10, 5]} />
-
-          <Fence
-            boxTextures={boxTextures}
-            onBoxClick={setSelected}
-            hoveredBox={hovered}
-            setHoveredBox={setHovered}
-            selectedBox={selected}
-          />
-
-          <OrbitControls enableDamping dampingFactor={0.05} />
-        </Canvas>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-primary rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-primary rounded-full mt-2 animate-pulse" />
+          </div>
+        </div>
       </section>
     </div>
   );

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 interface Logo3DProps {
-  modelPath: string;   // path ke file .glb
+  modelPath: string;
   scale?: number;
 }
 
@@ -47,18 +47,31 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
         logo = gltf.scene;
         logo.scale.set(scale, scale, scale);
         logo.rotation.set(0.1, 0, 0);
+
+        // Tambah ketebalan (extrusion effect fake)
+        logo.traverse((child: any) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            child.material = new THREE.MeshStandardMaterial({
+              color: child.material.color,
+              metalness: 0.2,
+              roughness: 0.4,
+            });
+          }
+        });
+
         scene.add(logo);
       },
       undefined,
       (err) => console.error("GLB load error:", err)
     );
 
-    // === Interaction States ===
+    // === Interaction ===
     let isHover = false;
     let isHold = false;
     let spinProgress = 0;
 
-    // === Events ===
     const dom = renderer.domElement;
 
     const handleEnter = () => (isHover = true);
@@ -67,7 +80,6 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
       isHold = false;
       spinProgress = 0;
     };
-
     const handleDown = () => (isHold = true);
     const handleUp = () => (isHold = false);
 
@@ -94,6 +106,7 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
       renderer.render(scene, camera);
       rafRef.current = requestAnimationFrame(animate);
     };
+
     rafRef.current = requestAnimationFrame(animate);
 
     // === Resize ===

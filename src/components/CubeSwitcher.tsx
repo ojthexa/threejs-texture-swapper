@@ -3,6 +3,7 @@ import { OrbitControls, useTexture, Html, Line } from "@react-three/drei";
 import { useState, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 type TextureType = "flower" | "mahkota" | "himawari" | "taurus" | "metal" | "sulur" | "ranting" | "spinach" | "shuriken";
 
@@ -174,15 +175,19 @@ export default function CubeSwitcher() {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
       
       <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
-        <div className="h-full px-6 flex items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
-            <h1 className="text-xl font-bold tracking-wider text-primary uppercase">
-              GRC PLayer
-            </h1>
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
+          <div className="h-full px-6 flex items-center">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
+        
+              <img 
+                src="/src/assets/logo.png"
+                alt="GRC Player"
+                className="h-6 md:h-8 object-contain opacity-90 hover:opacity-100 transition duration-200"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
         <div className="px-6 py-4">

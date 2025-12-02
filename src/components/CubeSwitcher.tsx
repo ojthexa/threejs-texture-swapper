@@ -60,15 +60,23 @@ function Fence({
 
   const materials = useMemo(() => {
     return boxTextures.map((textureType) => {
+      const texture = textureMap[textureType];
+      
+      // Configure texture wrapping and tiling
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(3, 2);
+      texture.offset.set(0, 0);
+      texture.center.set(0.5, 0.5);
+      texture.needsUpdate = true;
+      
       const material = new THREE.MeshStandardMaterial({
-        map: textureMap[textureType],
+        map: texture,
         metalness: 0.3,
         roughness: 0.7,
+        transparent: textureType === 'shuriken',
       });
-      material.map!.wrapS = THREE.RepeatWrapping;
-      material.map!.wrapT = THREE.RepeatWrapping;
-      material.map!.repeat.set(3, 2);
-      material.needsUpdate = true;
+      
       return material;
     });
   }, [boxTextures, flowerTexture, mahkotaTexture, himawariTexture, taurusTexture, metalTexture, sulurTexture, rantingTexture, spinachTexture, shurikenTexture]);

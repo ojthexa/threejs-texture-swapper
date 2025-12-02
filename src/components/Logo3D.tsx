@@ -1,3 +1,4 @@
+// Logo3D.tsx
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
@@ -7,133 +8,151 @@ interface Logo3DProps {
 }
 
 export default function Logo3D({ image, size = 3 }: Logo3DProps) {
-  const mountRef = useRef<HTMLDivElement>(null);
-  const logoMeshRef = useRef<THREE.Mesh>();
+  const mountRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Scene
-    const scene = new THREE.Scene();
-    scene.background = null;
+    if (!mountRef.current) return;
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(
-      50,
-      mountRef.current!.clientWidth / mountRef.current!.clientHeight,
-      0.1,
-      100
-    );
+    // Scene + Camera
+    const scene = new THREE.Scene();
+    const width = mountRef.current.clientWidth || 400;
+    const height = mountRef.current.clientHeight || 400;
+
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
     camera.position.z = 9;
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(
-      mountRef.current!.clientWidth,
-      mountRef.current!.clientHeight
-    );
-    mountRef.current!.appendChild(renderer.domElement);
+    renderer.setPixelRatio(window.devicePixelRatio || 1);
+    renderer.setSize(width, height);
 
-    // LIGHTING
-    const light = new THREE.PointLight(0xffffff, 1);
-    light.position.set(5, 5, 10);
-    scene.add(light);
+    // FIX: replacement for old outputEncoding
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    mountRef.current.appendChild(renderer.domElement);
+
+    // Lights
+    const pointLight = new THREE.PointLight(0xffffff, 1.0);
+    pointLight.position.set(5, 5, 10);
+    scene.add(pointLight);
 
     const ambient = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambient);
 
-    // TEXTURE
-    const texture = new THREE.TextureLoader().load(image);
+    // Texture
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(image);
+    texture.colorSpace = THREE.SRGBColorSpace;
 
-    // GEOMETRY — memberi ketebalan 0.4
+    // 3D Thick Logo
     const geometry = new THREE.BoxGeometry(size, size, 0.4);
 
+    const sideMaterial = new THREE.MeshStandardMaterial({ color: 0xdddddd });
+    const frontMaterial = new THREE.MeshStandardMaterial({ map: texture });
+    const backMaterial = new THREE.MeshStandardMaterial({ map: texture });
+
     const materials = [
-      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }), // sisi samping
-      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
-      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
-      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
-      new THREE.MeshStandardMaterial({ map: texture }), // depan
-      new THREE.MeshStandardMaterial({ map: texture }), // belakang
+      sideMaterial,
+      sideMaterial,
+      sideMaterial,
+      sideMaterial,
+      frontMaterial,
+      backMaterial,
     ];
 
     const logoMesh = new THREE.Mesh(geometry, materials);
-    logoMeshRef.current = logoMesh;
-
+    logoMesh.castShadow = true;
+    logoMesh.receiveShadow = true;
     scene.add(logoMesh);
 
-    // RENDER LOOP
-    let frame = 0;
-    const animate = () => {
-      requestAnimationFrame(animate);
+    // Interaction Flags
+    let isHovering = false;
+    let isHolding = false;
+    let holdProgress = 0;
+    const idleSpeed = 0.005;
 
-      // Idle slow rotation
-      if (!isHovering && !isHolding) {
-        logoMesh.rotation.y += 0.005;
+    // Resize Handling
+    const handleResize = () => {
+      if (!mountRef.current) return;
+      const w = mountRef.current.clientWidth;
+      const h = mountRef.current.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener("resize", handleResize);
+
+    // Mouse Events
+    const dom = renderer.domElement;
+
+    dom.addEventListener("mouseenter", () => (isHovering = true));
+    dom.addEventListener("mouseleave", () => {
+      isHovering = false;
+      isHolding = false;
+      holdProgress = 0;
+    });
+    dom.addEventListener("mousedown", () => {
+      isHolding = true;
+      holdProgress = 0;
+    });
+    window.addEventListener("mouseup", () => {
+      isHolding = false;
+      holdProgress = 0;
+    });
+
+    // Animation Loop
+    const animate = (time: number) => {
+      if (isHolding) {
+        holdProgress += 0.12;
+        logoMesh.rotation.y = holdProgress;
+      } else if (isHovering) {
+        logoMesh.rotation.y += 0.06;
+        logoMesh.rotation.x = Math.sin(time / 600) * 0.03;
+      } else {
+        logoMesh.rotation.y += idleSpeed;
+        logoMesh.rotation.x += (0 - logoMesh.rotation.x) * 0.05;
       }
 
       renderer.render(scene, camera);
-    };
-    animate();
-
-    // EVENTS
-    let isHovering = false;
-    let isHolding = false;
-
-    const handleHover = () => {
-      isHovering = true;
-      const start = logoMesh.rotation.y;
-      const end = start + Math.PI * 2;
-
-      const duration = 900; // ms
-      const startTime = performance.now();
-
-      const spin = (now: number) => {
-        if (!isHovering || isHolding) return;
-
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = progress < 1 ? 1 - Math.pow(1 - progress, 4) : 1;
-
-        logoMesh.rotation.y = start + (end - start) * eased;
-
-        if (progress < 1) requestAnimationFrame(spin);
-      };
-
-      requestAnimationFrame(spin);
+      rafRef.current = requestAnimationFrame(animate);
     };
 
-    const handleHold = () => {
-      isHolding = true;
-      const start = logoMesh.rotation.y;
-      const end = start + Math.PI * 2;
+    rafRef.current = requestAnimationFrame(animate);
 
-      const duration = 700;
-      const startTime = performance.now();
-
-      const spin = (now: number) => {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const eased = progress < 1 ? 1 - Math.pow(1 - progress, 4) : 1;
-
-        logoMesh.rotation.y = start + (end - start) * eased;
-
-        if (progress < 1) requestAnimationFrame(spin);
-        else isHolding = false;
-      };
-
-      requestAnimationFrame(spin);
-    };
-
-    renderer.domElement.addEventListener("mouseenter", handleHover);
-    renderer.domElement.addEventListener("mousedown", handleHold);
-    renderer.domElement.addEventListener("mouseleave", () => {
-      isHovering = false;
-      isHolding = false;
-    });
-
-    // CLEANUP
+    // Cleanup
     return () => {
-      renderer.dispose();
-      mountRef.current?.removeChild(renderer.domElement);
-    };
-  }, []);
+      dom.removeEventListener("mouseenter", () => {});
+      dom.removeEventListener("mouseleave", () => {});
+      dom.removeEventListener("mousedown", () => {});
+      window.removeEventListener("mouseup", () => {});
+      window.removeEventListener("resize", handleResize);
 
-  return <div ref={mountRef} className="w-[240px] h-[240px]" />;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+      geometry.dispose();
+      texture.dispose();
+      sideMaterial.dispose();
+      frontMaterial.dispose();
+      backMaterial.dispose();
+
+      renderer.forceContextLoss();
+      renderer.dispose();
+
+      if (
+        mountRef.current &&
+        renderer.domElement.parentElement === mountRef.current
+      ) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+    };
+  }, [image, size]);
+
+  return (
+    <div
+      ref={mountRef}
+      className="w-[240px] h-[240px]"
+      style={{ width: 240, height: 240 }}
+    />
+  );
 }

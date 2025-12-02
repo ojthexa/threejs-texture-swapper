@@ -3,6 +3,7 @@ import { OrbitControls, useTexture, Html } from "@react-three/drei";
 import { useState, useMemo, useRef } from "react";
 import * as THREE from "three";
 import CubeSwitcher from "../components/CubeSwitcher";
+import Navbar from "@/components/Navbar";
 
 type TextureType =
   | "flower"
@@ -114,34 +115,42 @@ export default function Viewer3D() {
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden">
-      
-      {/* === Cube Switcher Panel (Bottom UI) === */}
-      <div className="absolute bottom-0 left-0 right-0 z-20">
-        <CubeSwitcher
-          boxTextures={boxTextures}
-          setBoxTextures={setBoxTextures}
-          selectedBox={selectedBox}
-        />
-      </div>
 
-      {/* === 3D Viewer === */}
-      <Canvas camera={{ position: [5, 3, 5], fov: 50 }} className="w-full h-full">
+      {/* NAVBAR */}
+      <Navbar className="absolute top-0 left-0 right-0 z-50 pointer-events-auto" />
+
+      {/* 3D CANVAS */}
+      <Canvas
+        camera={{ position: [5, 3, 5], fov: 50 }}
+        className="absolute inset-0 w-full h-full z-0"
+      >
         <color attach="background" args={["#050505"]} />
-
+        
         <ambientLight intensity={0.6} />
         <directionalLight intensity={1.2} position={[10, 10, 5]} />
         <pointLight intensity={0.6} position={[0, 5, 0]} color="#00ffff" />
-
+        
+        {/* 🔥 Model pagar */}
         <Fence
           boxTextures={boxTextures}
-          onBoxClick={setSelectedBox}
           hoveredBox={hoveredBox}
           setHoveredBox={setHoveredBox}
           selectedBox={selectedBox}
+          onBoxClick={setSelectedBox}
         />
 
         <OrbitControls enableDamping dampingFactor={0.05} rotateSpeed={0.4} />
       </Canvas>
+
+      {/* SWITCHER UI */}
+      <div className="absolute bottom-0 left-0 right-0 z-40 pointer-events-auto">
+        <CubeSwitcher
+          boxTextures={boxTextures}
+          setBoxTextures={setBoxTextures}
+          selectedBox={selectedBox}
+          setSelectedBox={setSelectedBox}
+        />
+      </div>
     </div>
   );
 }

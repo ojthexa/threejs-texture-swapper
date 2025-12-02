@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Logo3D from "./Logo3D";
+import Logo3D from "@/components/Logo3D";
 
 export default function Home() {
   return (
@@ -25,7 +25,10 @@ export default function Home() {
           
           {/* 3D Logo */}
           <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
-            <Logo3D modelPath={import.meta.env.BASE_URL + "models/logo.glb"} scale={3} />
+            <Logo3D
+              modelPath={import.meta.env.BASE_URL + "models/logo.glb"}
+              scale={3}
+            />
           </div>
 
           {/* Title */}

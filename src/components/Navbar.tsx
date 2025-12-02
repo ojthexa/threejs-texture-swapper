@@ -7,10 +7,11 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-6 py-4 flex items-center">
+        {/* Burger menu di kanan */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="text-white hover:text-primary transition-colors p-2"
+          className="ml-auto text-white hover:text-primary transition-colors p-2"
           aria-label="Toggle menu"
         >
           {isOpen ? <X size={32} /> : <Menu size={32} />}

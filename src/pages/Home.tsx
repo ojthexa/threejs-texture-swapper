@@ -25,7 +25,7 @@ const Home = () => {
             <img 
               src={logo} 
               alt="GRC-artiKON" 
-              className="h-20 md:h-32 mx-auto mb-8 drop-shadow-[0_0_30px_rgba(0,255,255,0.3)]"
+              className="h-10 md:h-16 mx-auto mb-8 drop-shadow-[0_0_30px_rgba(0,255,255,0.3)]"
             />
           </div>
 

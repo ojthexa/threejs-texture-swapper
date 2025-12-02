@@ -2,6 +2,7 @@ import { Canvas, useThree, ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, useTexture, Html } from "@react-three/drei";
 import { useState, useMemo, useRef } from "react";
 import * as THREE from "three";
+import CubeSwitcher from "../components/CubeSwitcher";
 
 type TextureType =
   | "flower"
@@ -16,6 +17,9 @@ type TextureType =
 
 const boxNames = ["Kiri", "Tengah", "Kanan"];
 
+// =========================
+//  FENCE COMPONENT
+// =========================
 function Fence({
   boxTextures,
   onBoxClick,
@@ -66,6 +70,7 @@ function Fence({
       texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(3, 2);
       texture.center.set(0.5, 0.5);
+
       return new THREE.MeshStandardMaterial({
         map: texture,
         metalness: 0.3,
@@ -73,6 +78,8 @@ function Fence({
       });
     });
   }, [boxTextures]);
+
+  const activeIndex = selectedBox ?? hoveredBox;
 
   return (
     <>
@@ -90,11 +97,10 @@ function Fence({
         </mesh>
       ))}
 
-      {(selectedBox ?? hoveredBox) !== null && (
-        <Html position={[(selectedBox ?? hoveredBox) * 6 - 6, 3, 0]}>
+      {activeIndex !== null && (
+        <Html position={[(activeIndex - 1) * 6, 3, 0]}>
           <div className="bg-background/95 backdrop-blur-md border-2 border-primary px-4 py-2 rounded-lg shadow-lg pointer-events-none">
-            {boxNames[selectedBox ?? hoveredBox!]}:{" "}
-            {textureNames[boxTextures[selectedBox ?? hoveredBox!]]}
+            {boxNames[activeIndex]}: {textureNames[boxTextures[activeIndex]]}
           </div>
         </Html>
       )}
@@ -102,6 +108,9 @@ function Fence({
   );
 }
 
+// =========================
+//  VIEWER3D (FINAL) 
+// =========================
 export default function Viewer3D() {
   const [boxTextures, setBoxTextures] = useState<TextureType[]>([
     "flower",
@@ -113,6 +122,9 @@ export default function Viewer3D() {
 
   return (
     <div className="w-full h-screen relative bg-background">
+      {/* Sidebar or UI from CubeSwitcher */}
+      <CubeSwitcher />
+
       <Canvas camera={{ position: [5, 3, 5], fov: 50 }} className="w-full h-full">
         <color attach="background" args={["#050505"]} />
 

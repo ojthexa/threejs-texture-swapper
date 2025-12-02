@@ -67,7 +67,7 @@ function Fence({
       });
       material.map!.wrapS = THREE.RepeatWrapping;
       material.map!.wrapT = THREE.RepeatWrapping;
-      material.map!.repeat.set(2, 3);
+      material.map!.repeat.set(3, 2);
       material.needsUpdate = true;
       return material;
     });
@@ -88,13 +88,13 @@ function Fence({
   };
 
   const getBoxPosition = (boxIndex: number): [number, number, number] => {
-    const spacing = 2.5;
-    return [(boxIndex - 1) * spacing, 0, 0];
+    const boxWidth = 6;
+    return [(boxIndex - 1) * boxWidth, 0, 0];
   };
 
   const getAnnotationPosition = (boxIndex: number): [number, number, number] => {
     const pos = getBoxPosition(boxIndex);
-    return [pos[0], pos[1] + 2.5, pos[2]];
+    return [pos[0], pos[1] + 3, pos[2]];
   };
 
   const activeBox = selectedBox !== null ? selectedBox : hoveredBox;
@@ -111,7 +111,7 @@ function Fence({
           onPointerMove={handlePointerMove(index)}
           onPointerOut={handlePointerOut}
         >
-          <boxGeometry args={[1.5, 3, 0.3]} />
+          <boxGeometry args={[6, 4, 0.1]} />
         </mesh>
       ))}
       
@@ -187,7 +187,7 @@ export default function CubeSwitcher() {
             </div>
           )}
           
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
             {textures.map((texture) => (
               <button
                 key={texture.value}

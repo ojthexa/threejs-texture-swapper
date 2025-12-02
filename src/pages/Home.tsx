@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from "react";
-import { Canvas, useTexture } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+import { Canvas, useThree, ThreeEvent } from "@react-three/fiber";
+import { OrbitControls, Html, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import Navbar from "@/components/Navbar";
 

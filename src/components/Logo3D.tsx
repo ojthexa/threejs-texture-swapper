@@ -37,10 +37,11 @@ export default function Logo3D({ modelPath }) {
   loader.load(modelPath, (gltf) => {
   model = gltf.scene;
 
-  const box = new THREE.Box3().setFromObject(model);
-  const center = new THREE.Vector3();
-  box.getCenter(center);
-  model.position.sub(center);
+  // Setelah model.scale.setScalar(...)
+  const box2 = new THREE.Box3().setFromObject(model);
+  const size2 = new THREE.Vector3();
+  box2.getSize(size2);
+  pivot.position.x = -size2.x * 0.18;
 
   const sphere = new THREE.Sphere();
   box.getBoundingSphere(sphere);
@@ -178,6 +179,7 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+
 
 
 

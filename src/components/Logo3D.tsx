@@ -41,7 +41,7 @@ export default function Logo3D({ modelPath }) {
 
       const maxSize = Math.max(size.x, size.y, size.z);
       const scale = (mountRef.current.clientHeight / 120) / maxSize;
-      model.scale.setScalar(scale);
+      model.scale.setScalar(scale * 1.5);
 
       const center = new THREE.Vector3();
       box.getCenter(center);
@@ -165,3 +165,4 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+

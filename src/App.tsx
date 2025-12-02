@@ -1,68 +1,35 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useRef } from "react";
 import Home from "./pages/Home";
 import Viewer3D from "./pages/Viewer3D";
-import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const App = () => {
+  const containerRef = useRef(null);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+  return (
+    <div
+      ref={containerRef}
+      className="
+        h-screen w-screen 
+        overflow-y-scroll 
+        snap-y snap-mandatory 
+        scrollbar-hide 
+        scroll-smooth
+      "
+      style={{
+        transition: "all 0.6s ease-in-out",
+      }}
+    >
+      {/* Section 1 */}
+      <section className="snap-start h-screen w-full">
+        <Home />
+      </section>
 
-      <BrowserRouter>
-        {/* Fullscreen snap scrolling wrapper */}
-        <div
-          className="
-            h-screen w-screen 
-            overflow-y-scroll overflow-x-hidden 
-            snap-y snap-mandatory 
-            no-scrollbar 
-            scroll-smooth
-          "
-          style={{
-            scrollBehavior: "smooth",
-            scrollSnapType: "y mandatory",
-          }}
-        >
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <section className="snap-start h-screen w-full">
-                  <Home />
-                </section>
-              }
-            />
-
-            <Route
-              path="/3d-viewer"
-              element={
-                <section className="snap-start h-screen w-full">
-                  <Viewer3D />
-                </section>
-              }
-            />
-
-            <Route
-              path="*"
-              element={
-                <section className="snap-start h-screen w-full">
-                  <NotFound />
-                </section>
-              }
-            />
-          </Routes>
-        </div>
-
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      {/* Section 2 */}
+      <section className="snap-start h-screen w-full">
+        <Viewer3D />
+      </section>
+    </div>
+  );
+};
 
 export default App;

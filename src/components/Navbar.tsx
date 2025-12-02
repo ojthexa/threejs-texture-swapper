@@ -6,35 +6,54 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-4 right-4 z-50">
-      {/* BURGER / CLOSE BUTTON */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-white hover:text-primary transition p-2 bg-black/40 rounded-lg backdrop-blur-md"
+    <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+      <div className="container mx-auto px-6 py-4 flex items-center">
+        {/* Burger di kanan */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="ml-auto text-white hover:text-primary transition-colors p-2"
+        >
+          <Menu size={28} />
+        </button>
+      </div>
+
+      {/* Overlay menu */}
+      <div
+        className={`fixed inset-0 bg-background/95 backdrop-blur-lg
+        transition-all duration-500
+        ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+        <div className="absolute top-4 right-4 flex flex-col items-end gap-3">
 
-      {/* SMALL DROPDOWN MENU */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-black/70 backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col gap-3">
-          <Link
-            to="/"
+          {/* Tombol X kecil */}
+          <button
             onClick={() => setIsOpen(false)}
-            className="text-white text-sm hover:text-primary transition"
+            className="text-white hover:text-primary transition-colors p-1"
           >
-            Home
-          </Link>
+            <X size={24} />
+          </button>
 
-          <Link
-            to="/3d-viewer"
-            onClick={() => setIsOpen(false)}
-            className="text-white text-sm hover:text-primary transition"
-          >
-            3D Viewer
-          </Link>
+          {/* Menu list */}
+          <div className="flex flex-col items-end gap-2 pr-1">
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
+              className="text-3xl md:text-5xl font-bold text-foreground hover:text-primary transition-all"
+            >
+              Home
+            </Link>
+
+            <Link
+              to="/3d-viewer"
+              onClick={() => setIsOpen(false)}
+              className="text-3xl md:text-5xl font-bold text-foreground hover:text-primary transition-all"
+            >
+              3D Viewer
+            </Link>
+          </div>
+
         </div>
-      )}
+      </div>
     </nav>
   );
 };

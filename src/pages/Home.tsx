@@ -1,10 +1,7 @@
 import Navbar from "@/components/Navbar";
-import { useState } from "react";
-import TiltLogo from "@/components/TiltLogo";
+import Logo3D from "@/components/Logo3D"; // ganti TiltLogo menjadi Logo3D
 
 const Home = () => {
-  const [textTilt, setTextTilt] = useState({ rotateX: 0, rotateY: 0 });
-
   return (
     <div className="h-screen w-full overflow-y-auto snap-y snap-mandatory">
       <Navbar />
@@ -26,28 +23,18 @@ const Home = () => {
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl">
           
-          {/* 3D Tilt Logo */}
-          <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <TiltLogo onTiltChange={(values) => setTextTilt(values)} />
+          {/* 3D Logo */}
+          <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
+            <Logo3D image="/logo.png" size={3} />
           </div>
 
-          {/* Title affected by tilt */}
-          <h1
-            className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-transform duration-150"
-            style={{
-              transform: `translateX(${textTilt.rotateY * 1.5}px) translateY(${textTilt.rotateX * 1.5}px)`
-            }}
-          >
+          {/* Title */}
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             PROFESSIONAL ARCHITECTURE SOLUTIONS
           </h1>
 
-          {/* Subtitle affected by tilt */}
-          <p
-            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed transition-transform duration-150"
-            style={{
-              transform: `translateX(${textTilt.rotateY * 0.8}px) translateY(${textTilt.rotateX * 0.8}px)`
-            }}
-          >
+          {/* Subtitle */}
+          <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
             Premium GRC materials and structural solutions for modern architecture. 
             Building excellence with innovation and precision.
           </p>

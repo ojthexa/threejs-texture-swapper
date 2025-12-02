@@ -56,7 +56,7 @@ export default function Logo3D({ modelPath }: Logo3DProps) {
 
         // === SCALE otomatis agar tidak terlalu besar ===
         const maxSize = Math.max(size.x, size.y, size.z);
-        const desiredSize = 2.5; // semakin kecil semakin kecil LOGO
+        const desiredSize = 3.5; // semakin kecil semakin kecil LOGO
         const autoScale = desiredSize / maxSize;
 
         model.scale.set(autoScale, autoScale, autoScale);
@@ -123,7 +123,7 @@ export default function Logo3D({ modelPath }: Logo3DProps) {
   return (
     <div
       ref={mountRef}
-      className="w-full h-[260px] md:h-[300px] lg:h-[330px] flex items-center justify-center"
+      className="w-full h-[160px] md:h-[200px] lg:h-[240px] flex items-center justify-center"
     />
   );
 }

@@ -38,7 +38,7 @@ const Navbar = () => {
             <Link
               to="/"
               onClick={() => setIsOpen(false)}
-              className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground hover:text-primary transition-all"
+              className="text-sm md:text-base lg:text-lg font-semibold text-foreground hover:text-primary transition-all"
             >
               Home
             </Link>
@@ -46,7 +46,7 @@ const Navbar = () => {
             <Link
               to="/3d-viewer"
               onClick={() => setIsOpen(false)}
-              className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground hover:text-primary transition-all"
+              className="text-sm md:text-base lg:text-lg font-semibold text-foreground hover:text-primary transition-all"
             >
               GRC Player
             </Link>

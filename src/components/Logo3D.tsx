@@ -35,32 +35,32 @@ export default function Logo3D({ modelPath }) {
 
   const loader = new GLTFLoader();
   loader.load(modelPath, (gltf) => {
-    model = gltf.scene;
-  
-    // --- Hitung ukuran model ---
-    const box = new THREE.Box3().setFromObject(model);
-    const center = new THREE.Vector3();
-    box.getCenter(center);
-    model.position.sub(center);
-  
-    // --- Scale adaptif berdasarkan ukuran container ---
-    const sphere = new THREE.Sphere();
-    box.getBoundingSphere(sphere);
-  
-    const desiredSize = mountRef.current.clientWidth * 0.28; // fleksibel
-    const scale = desiredSize / sphere.radius;
-  
-    model.scale.setScalar(scale * 1.5); // 1.5x perintah sebelumnya
-  
-    pivot.add(model);
-    pivot.position.x = sphere.radius * 0.8; 
+  model = gltf.scene;
 
-  
-    // --- Auto set camera distance supaya tidak terpotong ---
-    const idealDistance = sphere.radius * 2.7;
-    camera.position.set(0, sphere.radius * 0.4, idealDistance);
-    camera.lookAt(0, 0, 0);
-  });
+  const box = new THREE.Box3().setFromObject(model);
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  model.position.sub(center);
+
+  const sphere = new THREE.Sphere();
+  box.getBoundingSphere(sphere);
+
+  // 🔥 Scale stabil
+  const scaleFactor = (mountRef.current.clientWidth / 150) / sphere.radius;
+  model.scale.setScalar(scaleFactor * 1.5);
+
+  pivot.add(model);
+
+  // 📌 Geser posisi setelah scale (agar tepat)
+  setTimeout(() => {
+    pivot.position.x = sphere.radius * 0.35;  // lebih aman dari 0.8
+  }, 10);
+
+  // 🔥 Kamera otomatis pas & tidak cropping
+  const idealDistance = sphere.radius * 3.2;
+  camera.position.set(0, sphere.radius * 0.2, idealDistance);
+  camera.lookAt(0, 0, 0);
+});
 
   let isDragging = false;
   let isHover = false;
@@ -178,5 +178,6 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+
 
 

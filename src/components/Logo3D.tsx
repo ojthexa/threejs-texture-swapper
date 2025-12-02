@@ -10,8 +10,6 @@ export default function Logo3D({ modelPath }) {
     if (!mountRef.current) return;
 
     const scene = new THREE.Scene();
-    scene.background = null;
-
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
@@ -24,7 +22,7 @@ export default function Logo3D({ modelPath }) {
     mountRef.current.appendChild(renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff, 1));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.3);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
     dir.position.set(3, 4, 6);
     scene.add(dir);
 
@@ -42,45 +40,38 @@ export default function Logo3D({ modelPath }) {
       box.getSize(size);
 
       const maxSize = Math.max(size.x, size.y, size.z);
-
-      // 👉 Scale berdasarkan tinggi container supaya tidak kebesaran
       const scale = (mountRef.current.clientHeight / 120) / maxSize;
       model.scale.setScalar(scale);
 
-      // Center model
       const center = new THREE.Vector3();
       box.getCenter(center);
       model.position.sub(center);
 
-      // Reset rotation (posisi netral)
       model.rotation.set(0, 0, 0);
 
       pivot.add(model);
     });
 
-    // Interaction variables
+    // Interaction
     let isDragging = false;
+    let isHover = false;
     let lastX = 0;
     let lastY = 0;
-    let velocityY = 0;
-    let velocityX = 0;
-    let animationActive = false;
+    let velX = 0;
+    let velY = 0;
 
     const dom = renderer.domElement;
 
-    const startAnimation = () => {
-      if (!animationActive) {
-        animationActive = true;
-        animate();
-      }
-    };
+    dom.addEventListener("mouseenter", () => (isHover = true));
+    dom.addEventListener("mouseleave", () => {
+      isHover = false;
+      isDragging = false;
+    });
 
-    // Mouse control
     dom.addEventListener("mousedown", (e) => {
       isDragging = true;
       lastX = e.clientX;
       lastY = e.clientY;
-      startAnimation();
     });
 
     dom.addEventListener("mouseup", () => (isDragging = false));
@@ -90,17 +81,17 @@ export default function Logo3D({ modelPath }) {
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
 
-      velocityY = dx * 0.01;
-      velocityX = dy * 0.01;
+      velY = dx * 0.01;
+      velX = dy * 0.01;
 
-      pivot.rotation.y += velocityY;
-      pivot.rotation.x += velocityX;
+      pivot.rotation.y += velY;
+      pivot.rotation.x += velX;
 
       lastX = e.clientX;
       lastY = e.clientY;
     });
 
-    // Touch support
+    // Touch
     let lastTouchX = 0;
     let lastTouchY = 0;
 
@@ -108,7 +99,6 @@ export default function Logo3D({ modelPath }) {
       isDragging = true;
       lastTouchX = e.touches[0].clientX;
       lastTouchY = e.touches[0].clientY;
-      startAnimation();
     });
 
     dom.addEventListener("touchend", () => (isDragging = false));
@@ -119,48 +109,52 @@ export default function Logo3D({ modelPath }) {
       const dx = e.touches[0].clientX - lastTouchX;
       const dy = e.touches[0].clientY - lastTouchY;
 
-      velocityY = dx * 0.01;
-      velocityX = dy * 0.01;
+      velY = dx * 0.01;
+      velX = dy * 0.01;
 
-      pivot.rotation.y += velocityY;
-      pivot.rotation.x += velocityX;
+      pivot.rotation.y += velY;
+      pivot.rotation.x += velX;
 
       lastTouchX = e.touches[0].clientX;
       lastTouchY = e.touches[0].clientY;
     });
 
-    // Animation loop (only when needed)
+    // Target resting rotation (front facing)
+    const targetRotation = { x: 0, y: 0, z: 0 };
+
     const animate = () => {
-      if (!animationActive) return;
+      if (!model) return;
 
+      // inertia decay
       if (!isDragging) {
-        velocityY *= 0.92;
-        velocityX *= 0.92;
-        pivot.rotation.y += velocityY;
-        pivot.rotation.x += velocityX;
+        velX *= 0.93;
+        velY *= 0.93;
+        pivot.rotation.y += velY;
+        pivot.rotation.x += velX;
+      }
 
-        if (Math.abs(velocityY) < 0.0002 && Math.abs(velocityX) < 0.0002) {
-          animationActive = false;
-        }
+      // Auto return to perfect front view when idle
+      if (!isDragging && !isHover && Math.abs(velX) < 0.002 && Math.abs(velY) < 0.002) {
+        pivot.rotation.x += (targetRotation.x - pivot.rotation.x) * 0.06;
+        pivot.rotation.y += (targetRotation.y - pivot.rotation.y) * 0.06;
+        pivot.rotation.z += (targetRotation.z - pivot.rotation.z) * 0.06;
       }
 
       renderer.render(scene, camera);
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    // Resize handler
-    const onResize = () => {
+    animate();
+
+    window.addEventListener("resize", () => {
       const w = mountRef.current.clientWidth;
       const h = mountRef.current.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-    };
-
-    window.addEventListener("resize", onResize);
+    });
 
     return () => {
-      window.removeEventListener("resize", onResize);
       cancelAnimationFrame(rafRef.current);
       renderer.dispose();
       mountRef.current.removeChild(renderer.domElement);

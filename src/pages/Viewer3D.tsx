@@ -2,6 +2,7 @@ import { Canvas, useThree, ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, useTexture, Html } from "@react-three/drei";
 import { useState, useMemo, useRef } from "react";
 import * as THREE from "three";
+import CubeSwitcher from "../components/CubeSwitcher";
 
 type TextureType =
   | "flower"

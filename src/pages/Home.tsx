@@ -55,18 +55,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Services Section (placeholder for full page snap) */}
-      <section id="services" className="h-screen w-full snap-start relative flex items-center justify-center bg-card">
-        <div className="text-center px-6">
-          <h2 className="text-5xl md:text-7xl font-bold mb-6 text-primary">
-            Our Services
-          </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-            Coming soon...
-          </p>
-        </div>
-      </section>
     </div>
   );
 };

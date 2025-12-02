@@ -77,39 +77,3 @@ All colors MUST be HSL.
     display: none;
   }
 }
-
-/* Hide scrollbar but allow scrolling */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none; 
-  scrollbar-width: none;  
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-html, body, #root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Hide scrollbar */
-.scrollbar-hide {
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-

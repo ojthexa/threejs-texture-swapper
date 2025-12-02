@@ -7,115 +7,133 @@ interface Logo3DProps {
 }
 
 export default function Logo3D({ image, size = 3 }: Logo3DProps) {
-  const mountRef = useRef<HTMLDivElement | null>(null);
+  const mountRef = useRef<HTMLDivElement>(null);
+  const logoMeshRef = useRef<THREE.Mesh>();
 
   useEffect(() => {
-    if (!mountRef.current) return;
-
-    /** ---------------------------
-     *  BASIC SETUP
-     * --------------------------*/
+    // Scene
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.z = 6;
+    scene.background = null;
 
+    // Camera
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      mountRef.current!.clientWidth / mountRef.current!.clientHeight,
+      0.1,
+      100
+    );
+    camera.position.z = 9;
+
+    // Renderer
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(400, 400);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.appendChild(renderer.domElement);
+    renderer.setSize(
+      mountRef.current!.clientWidth,
+      mountRef.current!.clientHeight
+    );
+    mountRef.current!.appendChild(renderer.domElement);
 
-    /** ---------------------------
-     *  LIGHTING
-     * --------------------------*/
-    const light = new THREE.DirectionalLight(0xffffff, 1.2);
-    light.position.set(5, 5, 5);
+    // LIGHTING
+    const light = new THREE.PointLight(0xffffff, 1);
+    light.position.set(5, 5, 10);
     scene.add(light);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambient);
 
-    /** ---------------------------
-     *  LOAD LOGO AS TEXTURE
-     * --------------------------*/
-    const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(image);
+    // TEXTURE
+    const texture = new THREE.TextureLoader().load(image);
 
-    // 3D plane with texture
-    const geometry = new THREE.BoxGeometry(size, size, 0.3);
-    const material = new THREE.MeshStandardMaterial({
-      map: texture,
-      roughness: 0.4,
-      metalness: 0.1,
-    });
+    // GEOMETRY — memberi ketebalan 0.4
+    const geometry = new THREE.BoxGeometry(size, size, 0.4);
 
-    const logoMesh = new THREE.Mesh(geometry, material);
+    const materials = [
+      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }), // sisi samping
+      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
+      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
+      new THREE.MeshStandardMaterial({ color: "#e0e0e0" }),
+      new THREE.MeshStandardMaterial({ map: texture }), // depan
+      new THREE.MeshStandardMaterial({ map: texture }), // belakang
+    ];
+
+    const logoMesh = new THREE.Mesh(geometry, materials);
+    logoMeshRef.current = logoMesh;
+
     scene.add(logoMesh);
 
-    /** ---------------------------
-     *  INTERACTIONS
-     * --------------------------*/
-    let hover = false;
-    let hold = false;
-    let holdProgress = 0;
-
-    const dom = renderer.domElement;
-
-    dom.addEventListener("mouseenter", () => (hover = true));
-    dom.addEventListener("mouseleave", () => {
-      hover = false;
-      hold = false;
-      holdProgress = 0;
-    });
-
-    dom.addEventListener("mousedown", () => (hold = true));
-    dom.addEventListener("mouseup", () => {
-      hold = false;
-      holdProgress = 0;
-    });
-
-    /** ---------------------------
-     *  ANIMATION LOOP
-     * --------------------------*/
+    // RENDER LOOP
+    let frame = 0;
     const animate = () => {
       requestAnimationFrame(animate);
 
-      if (hold) {
-        // Full 360 spin animation
-        holdProgress += 0.06;
-        logoMesh.rotation.y = holdProgress;
-
-        if (holdProgress >= Math.PI * 2) {
-          holdProgress = 0; // reset
-        }
-      } else if (hover) {
-        // Small tilt when hovering
-        logoMesh.rotation.y += 0.03;
-      } else {
-        // Return to original rotation
-        logoMesh.rotation.y += (0 - logoMesh.rotation.y) * 0.1;
+      // Idle slow rotation
+      if (!isHovering && !isHolding) {
+        logoMesh.rotation.y += 0.005;
       }
 
       renderer.render(scene, camera);
     };
-
     animate();
 
-    /** Cleanup */
+    // EVENTS
+    let isHovering = false;
+    let isHolding = false;
+
+    const handleHover = () => {
+      isHovering = true;
+      const start = logoMesh.rotation.y;
+      const end = start + Math.PI * 2;
+
+      const duration = 900; // ms
+      const startTime = performance.now();
+
+      const spin = (now: number) => {
+        if (!isHovering || isHolding) return;
+
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = progress < 1 ? 1 - Math.pow(1 - progress, 4) : 1;
+
+        logoMesh.rotation.y = start + (end - start) * eased;
+
+        if (progress < 1) requestAnimationFrame(spin);
+      };
+
+      requestAnimationFrame(spin);
+    };
+
+    const handleHold = () => {
+      isHolding = true;
+      const start = logoMesh.rotation.y;
+      const end = start + Math.PI * 2;
+
+      const duration = 700;
+      const startTime = performance.now();
+
+      const spin = (now: number) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = progress < 1 ? 1 - Math.pow(1 - progress, 4) : 1;
+
+        logoMesh.rotation.y = start + (end - start) * eased;
+
+        if (progress < 1) requestAnimationFrame(spin);
+        else isHolding = false;
+      };
+
+      requestAnimationFrame(spin);
+    };
+
+    renderer.domElement.addEventListener("mouseenter", handleHover);
+    renderer.domElement.addEventListener("mousedown", handleHold);
+    renderer.domElement.addEventListener("mouseleave", () => {
+      isHovering = false;
+      isHolding = false;
+    });
+
+    // CLEANUP
     return () => {
+      renderer.dispose();
       mountRef.current?.removeChild(renderer.domElement);
     };
-  }, [image, size]);
+  }, []);
 
-  return (
-    <div
-      ref={mountRef}
-      style={{
-        width: 400,
-        height: 400,
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    />
-  );
+  return <div ref={mountRef} className="w-[240px] h-[240px]" />;
 }

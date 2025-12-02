@@ -53,6 +53,8 @@ export default function Logo3D({ modelPath }) {
     model.scale.setScalar(scale * 1.5); // 1.5x perintah sebelumnya
   
     pivot.add(model);
+    pivot.position.x = sphere.radius * 0.8; 
+
   
     // --- Auto set camera distance supaya tidak terpotong ---
     const idealDistance = sphere.radius * 2.7;
@@ -176,4 +178,5 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+
 

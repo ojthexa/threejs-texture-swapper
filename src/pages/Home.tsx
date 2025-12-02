@@ -1,13 +1,17 @@
 import Navbar from "@/components/Navbar";
-import logo from "@/assets/logo.png";
+import { useState } from "react";
+import TiltLogo from "@/components/TiltLogo";
 
 const Home = () => {
+  const [textTilt, setTextTilt] = useState({ rotateX: 0, rotateY: 0 });
+
   return (
     <div className="h-screen w-full overflow-y-auto snap-y snap-mandatory">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
+        
         {/* Animated background grid */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5">
           <div className="absolute inset-0 opacity-20">
@@ -21,23 +25,34 @@ const Home = () => {
 
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl">
+          
+          {/* 3D Tilt Logo */}
           <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <img 
-              src={logo} 
-              alt="GRC-artiKON" 
-              className="h-10 md:h-16 mx-auto mb-8 drop-shadow-[0_0_30px_rgba(0,255,255,0.3)]"
-            />
+            <TiltLogo onTiltChange={(values) => setTextTilt(values)} />
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+          {/* Title affected by tilt */}
+          <h1
+            className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent transition-transform duration-150"
+            style={{
+              transform: `translateX(${textTilt.rotateY * 1.5}px) translateY(${textTilt.rotateX * 1.5}px)`
+            }}
+          >
             PROFESSIONAL ARCHITECTURE SOLUTIONS
           </h1>
 
-          <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+          {/* Subtitle affected by tilt */}
+          <p
+            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed transition-transform duration-150"
+            style={{
+              transform: `translateX(${textTilt.rotateY * 0.8}px) translateY(${textTilt.rotateX * 0.8}px)`
+            }}
+          >
             Premium GRC materials and structural solutions for modern architecture. 
             Building excellence with innovation and precision.
           </p>
 
+          {/* Button */}
           <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
             <a 
               href="#services" 

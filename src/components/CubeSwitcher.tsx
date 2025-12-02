@@ -7,7 +7,7 @@ import logo from "@/assets/logo.png";
 
 type TextureType = "flower" | "mahkota" | "himawari" | "taurus" | "metal" | "sulur" | "ranting" | "spinach" | "shuriken";
 
-const boxNames = ["Kiri", "Tengah", "Kanan"];
+const boxNames = ["PANEL 1", "PANEL 2", "PANEL 3"];
 
 function Fence({ 
   boxTextures, 

@@ -10,12 +10,13 @@ export default function Logo3D({ modelPath }) {
     if (!mountRef.current) return;
 
     const scene = new THREE.Scene();
+    scene.background = null;
+
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(10, 14, 10);
-    camera.lookAt(0, 0, 0);
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    camera.position.set(0, 0, 8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -23,16 +24,16 @@ export default function Logo3D({ modelPath }) {
     mountRef.current.appendChild(renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff, 1));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.5);
-    dir.position.set(4, 6, 8);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.3);
+    dir.position.set(3, 4, 6);
     scene.add(dir);
 
     const pivot = new THREE.Group();
     scene.add(pivot);
 
     let model = null;
-    const loader = new GLTFLoader();
 
+    const loader = new GLTFLoader();
     loader.load(modelPath, (gltf) => {
       model = gltf.scene;
 
@@ -40,34 +41,41 @@ export default function Logo3D({ modelPath }) {
       const size = new THREE.Vector3();
       box.getSize(size);
 
-      const autoScale = (width / 80) / Math.max(size.x, size.y, size.z);
-      model.scale.setScalar(autoScale * 4); // Bigger
+      const maxSize = Math.max(size.x, size.y, size.z);
 
+      // 👉 Scale berdasarkan tinggi container supaya tidak kebesaran
+      const scale = (mountRef.current.clientHeight / 120) / maxSize;
+      model.scale.setScalar(scale);
+
+      // Center model
       const center = new THREE.Vector3();
       box.getCenter(center);
       model.position.sub(center);
 
-      pivot.add(model);
-      pivot.position.set(0, -1, 1.5);
+      // Reset rotation (posisi netral)
+      model.rotation.set(0, 0, 0);
 
-      renderer.render(scene, camera); // render once when loaded (idle mode)
+      pivot.add(model);
     });
 
+    // Interaction variables
     let isDragging = false;
     let lastX = 0;
     let lastY = 0;
     let velocityY = 0;
-    let velocityZ = 0;
+    let velocityX = 0;
     let animationActive = false;
 
     const dom = renderer.domElement;
 
     const startAnimation = () => {
-      if (animationActive) return;
-      animationActive = true;
-      animate();
+      if (!animationActive) {
+        animationActive = true;
+        animate();
+      }
     };
 
+    // Mouse control
     dom.addEventListener("mousedown", (e) => {
       isDragging = true;
       lastX = e.clientX;
@@ -83,16 +91,16 @@ export default function Logo3D({ modelPath }) {
       const dy = e.clientY - lastY;
 
       velocityY = dx * 0.01;
-      velocityZ = dy * 0.01;
+      velocityX = dy * 0.01;
 
       pivot.rotation.y += velocityY;
-      pivot.rotation.z += velocityZ;
+      pivot.rotation.x += velocityX;
 
       lastX = e.clientX;
       lastY = e.clientY;
     });
 
-    // TOUCH SUPPORT
+    // Touch support
     let lastTouchX = 0;
     let lastTouchY = 0;
 
@@ -112,28 +120,27 @@ export default function Logo3D({ modelPath }) {
       const dy = e.touches[0].clientY - lastTouchY;
 
       velocityY = dx * 0.01;
-      velocityZ = dy * 0.01;
+      velocityX = dy * 0.01;
 
       pivot.rotation.y += velocityY;
-      pivot.rotation.z += velocityZ;
+      pivot.rotation.x += velocityX;
 
       lastTouchX = e.touches[0].clientX;
       lastTouchY = e.touches[0].clientY;
     });
 
+    // Animation loop (only when needed)
     const animate = () => {
       if (!animationActive) return;
 
       if (!isDragging) {
-        velocityY *= 0.92; // inertia slowdown
-        velocityZ *= 0.92;
-
+        velocityY *= 0.92;
+        velocityX *= 0.92;
         pivot.rotation.y += velocityY;
-        pivot.rotation.z += velocityZ;
+        pivot.rotation.x += velocityX;
 
-        if (Math.abs(velocityY) < 0.0001 && Math.abs(velocityZ) < 0.0001) {
+        if (Math.abs(velocityY) < 0.0002 && Math.abs(velocityX) < 0.0002) {
           animationActive = false;
-          return;
         }
       }
 
@@ -141,7 +148,7 @@ export default function Logo3D({ modelPath }) {
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    // RESIZE HANDLING
+    // Resize handler
     const onResize = () => {
       const w = mountRef.current.clientWidth;
       const h = mountRef.current.clientHeight;
@@ -156,11 +163,11 @@ export default function Logo3D({ modelPath }) {
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(rafRef.current);
       renderer.dispose();
-      mountRef.current?.removeChild(renderer.domElement);
+      mountRef.current.removeChild(renderer.domElement);
     };
   }, [modelPath]);
 
   return (
-    <div ref={mountRef} className="w-[300px] md:w-[420px] h-[260px] md:h-[300px] mx-auto" />
+    <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }

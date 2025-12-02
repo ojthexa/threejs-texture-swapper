@@ -175,15 +175,14 @@ export default function CubeSwitcher() {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
       
       <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
-          <div className="h-full px-6 flex items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
-                <img 
-                  src={logo}
-                  alt="GRC Logo"
-                  className="h-6 md:h-8 object-contain opacity-90 hover:opacity-100 transition duration-200"
-                />
+        <div className="h-full px-6 flex items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
+              <img 
+              src={logo}
+              alt="GRC Logo"
+              className="h-6 md:h-8 object-contain opacity-90 hover:opacity-100 transition duration-200"
+              />
             </div>
           </div>
         </div>

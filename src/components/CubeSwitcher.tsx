@@ -178,7 +178,7 @@ export default function CubeSwitcher() {
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary))]" />
             <h1 className="text-xl font-bold tracking-wider text-primary uppercase">
-              Texture Control System
+              GRC PLayer
             </h1>
           </div>
         </div>

@@ -113,7 +113,18 @@ export default function Viewer3D() {
   const [hoveredBox, setHoveredBox] = useState<number | null>(null);
 
   return (
-    <div className="w-full h-screen relative bg-background">
+    <div className="relative w-full h-screen bg-background overflow-hidden">
+      
+      {/* === Cube Switcher Panel (Bottom UI) === */}
+      <div className="absolute bottom-0 left-0 right-0 z-20">
+        <CubeSwitcher
+          boxTextures={boxTextures}
+          setBoxTextures={setBoxTextures}
+          selectedBox={selectedBox}
+        />
+      </div>
+
+      {/* === 3D Viewer === */}
       <Canvas camera={{ position: [5, 3, 5], fov: 50 }} className="w-full h-full">
         <color attach="background" args={["#050505"]} />
 

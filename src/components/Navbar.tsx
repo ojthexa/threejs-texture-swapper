@@ -18,24 +18,26 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Full screen menu overlay */}
+      {/* Full Screen Overlay */}
       <div
         className={`fixed inset-0 bg-background/95 backdrop-blur-lg transition-all duration-500 ${
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
       >
-        <div className="flex flex-col items-center justify-center h-full gap-8">
+        {/* ISI MENU DIPOSISIKAN DI KANAN-ATAS */}
+        <div className="absolute top-24 right-12 flex flex-col items-end gap-6">
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
-            className="text-5xl md:text-7xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+            className="text-4xl md:text-5xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
           >
             Home
           </Link>
+
           <Link
             to="/3d-viewer"
             onClick={() => setIsOpen(false)}
-            className="text-5xl md:text-7xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+            className="text-4xl md:text-5xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
           >
             3D Viewer
           </Link>

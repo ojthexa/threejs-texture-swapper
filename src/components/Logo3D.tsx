@@ -36,23 +36,28 @@ export default function Logo3D({ modelPath }) {
   const loader = new GLTFLoader();
   loader.load(modelPath, (gltf) => {
     model = gltf.scene;
-
+  
+    // --- Hitung ukuran model ---
     const box = new THREE.Box3().setFromObject(model);
-    const size = new THREE.Vector3();
-    box.getSize(size);
-
-    const maxSize = Math.max(size.x, size.y, size.z);
-    const scale = (mountRef.current.clientWidth / 140) / maxSize;
-
-    model.scale.setScalar(scale * 1.5);
-
     const center = new THREE.Vector3();
     box.getCenter(center);
     model.position.sub(center);
-
-    model.rotation.set(0, 0, 0);
-
+  
+    // --- Scale adaptif berdasarkan ukuran container ---
+    const sphere = new THREE.Sphere();
+    box.getBoundingSphere(sphere);
+  
+    const desiredSize = mountRef.current.clientWidth * 0.28; // fleksibel
+    const scale = desiredSize / sphere.radius;
+  
+    model.scale.setScalar(scale * 1.5); // 1.5x perintah sebelumnya
+  
     pivot.add(model);
+  
+    // --- Auto set camera distance supaya tidak terpotong ---
+    const idealDistance = sphere.radius * 2.7;
+    camera.position.set(0, sphere.radius * 0.4, idealDistance);
+    camera.lookAt(0, 0, 0);
   });
 
   let isDragging = false;
@@ -171,3 +176,4 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
+

@@ -124,24 +124,8 @@ export default function Viewer3D() {
     <div className="w-full h-screen relative bg-background">
       {/* Sidebar or UI from CubeSwitcher */}
       <CubeSwitcher />
-
-      <Canvas camera={{ position: [5, 3, 5], fov: 50 }} className="w-full h-full">
-        <color attach="background" args={["#050505"]} />
-
-        <ambientLight intensity={0.6} />
-        <directionalLight intensity={1.2} position={[10, 10, 5]} />
-        <pointLight intensity={0.6} position={[0, 5, 0]} color="#00ffff" />
-
-        <Fence
-          boxTextures={boxTextures}
-          onBoxClick={setSelectedBox}
-          hoveredBox={hoveredBox}
-          setHoveredBox={setHoveredBox}
-          selectedBox={selectedBox}
-        />
-
-        <OrbitControls enableDamping dampingFactor={0.05} rotateSpeed={0.4} />
-      </Canvas>
     </div>
   );
 }
+
+

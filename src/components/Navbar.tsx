@@ -8,28 +8,39 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
       <div className="container mx-auto px-6 py-4 flex items-center">
-        {/* Burger menu di kanan */}
+
+        {/* Burger Menu (Right Top) */}
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => setIsOpen(true)}
           className="ml-auto text-white hover:text-primary transition-colors p-2"
-          aria-label="Toggle menu"
+          aria-label="Open menu"
         >
-          {isOpen ? <X size={32} /> : <Menu size={32} />}
+          <Menu size={32} />
         </button>
+
       </div>
 
-      {/* Full Screen Overlay */}
+      {/* FULLSCREEN OVERLAY */}
       <div
-        className={`fixed inset-0 bg-background/95 backdrop-blur-lg transition-all duration-500 ${
-          isOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 bg-background/95 backdrop-blur-lg transition-all duration-500
+        ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
       >
-        {/* ISI MENU DIPOSISIKAN DI KANAN-ATAS */}
-        <div className="absolute top-24 right-12 flex flex-col items-end gap-6">
+
+        {/* Close Button (Right Top) */}
+        <button
+          onClick={() => setIsOpen(false)}
+          className="absolute top-6 right-6 text-white hover:text-primary transition-colors p-2"
+          aria-label="Close menu"
+        >
+          <X size={38} />
+        </button>
+
+        {/* Menu Items (Center) */}
+        <div className="flex flex-col items-center justify-center h-full gap-8">
           <Link
             to="/"
             onClick={() => setIsOpen(false)}
-            className="text-4xl md:text-5xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+            className="text-5xl md:text-7xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
           >
             Home
           </Link>
@@ -37,11 +48,12 @@ const Navbar = () => {
           <Link
             to="/3d-viewer"
             onClick={() => setIsOpen(false)}
-            className="text-4xl md:text-5xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
+            className="text-5xl md:text-7xl font-bold text-foreground hover:text-primary transition-all duration-300 hover:scale-110"
           >
             3D Viewer
           </Link>
         </div>
+
       </div>
     </nav>
   );

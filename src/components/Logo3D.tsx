@@ -14,7 +14,8 @@ export default function Logo3D({ modelPath }) {
     const height = mountRef.current.clientHeight;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6);
+    camera.position.set(8, 6, 10);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -40,7 +41,7 @@ export default function Logo3D({ modelPath }) {
 
       // Resize model proportionally to container
       const maxSize = Math.max(size.x, size.y, size.z);
-      const autoScale = (mountRef.current.clientWidth / 300) / maxSize;
+      const autoScale = (mountRef.current.clientWidth / 80) / maxSize;
       model.scale.set(autoScale, autoScale, autoScale);
 
       const center = new THREE.Vector3();
@@ -48,6 +49,8 @@ export default function Logo3D({ modelPath }) {
       model.position.sub(center);
 
       pivot.add(model);
+      pivot.position.y = -1; // turun sedikit
+      pivot.position.z = 1.5; // maju ke kamera
     });
 
     // Interaction states

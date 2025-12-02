@@ -20,7 +20,7 @@ export default function Logo3D({ modelPath }: Logo3DProps) {
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6); // TURUNKAN kamera agar logo tidak terlalu ke atas
+    camera.position.set(0, 0, 7); // TURUNKAN kamera agar logo tidak terlalu ke atas
 
     // === Renderer ===
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

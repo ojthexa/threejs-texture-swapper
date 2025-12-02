@@ -24,10 +24,10 @@ export default function Home() {
         <div className="relative z-10 text-center px-6 max-w-5xl">
           
           {/* 3D Logo */}
-          <div className="mb-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
+          <div className="mb-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
             <Logo3D
               modelPath={import.meta.env.BASE_URL + "models/logo.glb"}
-              scale={3}
+              scale={4.5}
             />
           </div>
 

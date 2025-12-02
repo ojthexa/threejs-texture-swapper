@@ -7,144 +7,150 @@ export default function Logo3D({ modelPath }) {
   const rafRef = useRef(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+  if (!mountRef.current) return;
 
-    const scene = new THREE.Scene();
-    const width = mountRef.current.clientWidth;
-    const height = mountRef.current.clientHeight;
+  const scene = new THREE.Scene();
+  scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
-    camera.position.set(0, 0, 8);
+  const width = mountRef.current.clientWidth;
+  const height = mountRef.current.clientHeight;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.appendChild(renderer.domElement);
+  const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+  camera.position.set(0, 0, 8);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-    dir.position.set(3, 4, 6);
-    scene.add(dir);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  mountRef.current.appendChild(renderer.domElement);
 
-    const pivot = new THREE.Group();
-    scene.add(pivot);
+  scene.add(new THREE.AmbientLight(0xffffff, 1));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+  dir.position.set(3, 4, 6);
+  scene.add(dir);
 
-    let model = null;
+  const pivot = new THREE.Group();
+  scene.add(pivot);
 
-    const loader = new GLTFLoader();
-    loader.load(modelPath, (gltf) => {
-      model = gltf.scene;
+  let model = null;
 
-      const box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3();
-      box.getSize(size);
+  const loader = new GLTFLoader();
+  loader.load(modelPath, (gltf) => {
+    model = gltf.scene;
 
-      const maxSize = Math.max(size.x, size.y, size.z);
-      const scale = (mountRef.current.clientHeight / 120) / maxSize;
-      model.scale.setScalar(scale * 1.5);
+    const box = new THREE.Box3().setFromObject(model);
+    const size = new THREE.Vector3();
+    box.getSize(size);
 
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      model.position.sub(center);
+    const maxSize = Math.max(size.x, size.y, size.z);
+    const scale = (mountRef.current.clientWidth / 140) / maxSize;
 
-      model.rotation.set(0, 0, 0);
+    model.scale.setScalar(scale * 1.5);
 
-      pivot.add(model);
-    });
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    model.position.sub(center);
 
-    // Interaction
-    let isDragging = false;
-    let isHover = false;
-    let lastX = 0;
-    let lastY = 0;
-    let velX = 0;
-    let velY = 0;
+    model.rotation.set(0, 0, 0);
 
-    const dom = renderer.domElement;
+    pivot.add(model);
+  });
 
-    dom.addEventListener("mouseenter", () => (isHover = true));
-    dom.addEventListener("mouseleave", () => {
-      isHover = false;
-      isDragging = false;
-    });
+  let isDragging = false;
+  let isHover = false;
+  let lastX = 0;
+  let lastY = 0;
+  let velX = 0;
+  let velY = 0;
 
-    dom.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-    });
+  const dom = renderer.domElement;
 
-    dom.addEventListener("mouseup", () => (isDragging = false));
+  dom.addEventListener("mouseenter", () => (isHover = true));
+  dom.addEventListener("mouseleave", () => {
+    isHover = false;
+    isDragging = false;
+  });
 
-    dom.addEventListener("mousemove", (e) => {
-      if (!isDragging || !model) return;
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
+  dom.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
 
-      velY = dx * 0.01;
-      velX = dy * 0.01;
+  dom.addEventListener("mouseup", () => (isDragging = false));
 
-      pivot.rotation.y += velY;
-      pivot.rotation.x += velX;
+  dom.addEventListener("mousemove", (e) => {
+    if (!isDragging || !model) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
 
-      lastX = e.clientX;
-      lastY = e.clientY;
-    });
+    velY = dx * 0.01;
+    velX = dy * 0.01;
 
-    // Touch
-    let lastTouchX = 0;
-    let lastTouchY = 0;
+    pivot.rotation.y += velY;
+    pivot.rotation.x += velX;
 
-    dom.addEventListener("touchstart", (e) => {
-      isDragging = true;
-      lastTouchX = e.touches[0].clientX;
-      lastTouchY = e.touches[0].clientY;
-    });
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
 
-    dom.addEventListener("touchend", () => (isDragging = false));
+  // TOUCH SUPPORT
+  let lastTouchX = 0;
+  let lastTouchY = 0;
 
-    dom.addEventListener("touchmove", (e) => {
-      if (!isDragging || !model) return;
+  dom.addEventListener("touchstart", (e) => {
+    isDragging = true;
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+  });
 
-      const dx = e.touches[0].clientX - lastTouchX;
-      const dy = e.touches[0].clientY - lastTouchY;
+  dom.addEventListener("touchend", () => (isDragging = false));
 
-      velY = dx * 0.01;
-      velX = dy * 0.01;
+  dom.addEventListener("touchmove", (e) => {
+    if (!isDragging || !model) return;
 
-      pivot.rotation.y += velY;
-      pivot.rotation.x += velX;
+    const dx = e.touches[0].clientX - lastTouchX;
+    const dy = e.touches[0].clientY - lastTouchY;
 
-      lastTouchX = e.touches[0].clientX;
-      lastTouchY = e.touches[0].clientY;
-    });
+    velY = dx * 0.01;
+    velX = dy * 0.01;
 
-    // Target resting rotation (front facing)
-    const targetRotation = { x: 0, y: 0, z: 0 };
+    pivot.rotation.y += velY;
+    pivot.rotation.x += velX;
 
-    const animate = () => {
-      if (!model) return;
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+  });
 
-      // inertia decay
-      if (!isDragging) {
-        velX *= 0.93;
-        velY *= 0.93;
-        pivot.rotation.y += velY;
-        pivot.rotation.x += velX;
-      }
+  const targetRotation = { x: 0, y: 0, z: 0 };
 
-      // Auto return to perfect front view when idle
-      if (!isDragging && !isHover && Math.abs(velX) < 0.002 && Math.abs(velY) < 0.002) {
-        pivot.rotation.x += (targetRotation.x - pivot.rotation.x) * 0.06;
-        pivot.rotation.y += (targetRotation.y - pivot.rotation.y) * 0.06;
-        pivot.rotation.z += (targetRotation.z - pivot.rotation.z) * 0.06;
-      }
-
-      renderer.render(scene, camera);
+  const animate = () => {
+    if (!model) {
       rafRef.current = requestAnimationFrame(animate);
-    };
+      return;
+    }
 
-    animate();
+    velX *= 0.93;
+    velY *= 0.93;
+
+    if (!isDragging) {
+      pivot.rotation.y += velY;
+      pivot.rotation.x += velX;
+    }
+
+    // ROTATION LIMIT (prevent upside down)
+    pivot.rotation.x = Math.max(-0.8, Math.min(0.8, pivot.rotation.x));
+
+    if (!isDragging && !isHover && Math.abs(velX) < 0.002 && Math.abs(velY) < 0.002) {
+      pivot.rotation.x += (targetRotation.x - pivot.rotation.x) * 0.06;
+      pivot.rotation.y += (targetRotation.y - pivot.rotation.y) * 0.06;
+      pivot.rotation.z += (targetRotation.z - pivot.rotation.z) * 0.06;
+    }
+
+    renderer.render(scene, camera);
+    rafRef.current = requestAnimationFrame(animate);
+  };
+
+  animate();
 
     window.addEventListener("resize", () => {
       const w = mountRef.current.clientWidth;
@@ -165,4 +171,3 @@ export default function Logo3D({ modelPath }) {
     <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
   );
 }
-

@@ -18,81 +18,63 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     const scene = new THREE.Scene();
 
     // === Camera ===
-    const w = mountRef.current.clientWidth;
-    const h = mountRef.current.clientHeight;
-
-    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 0, 7);
 
     // === Renderer ===
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(w, h);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mountRef.current.appendChild(renderer.domElement);
 
     // === Lights ===
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-
+    const ambient = new THREE.AmbientLight(0xffffff, 0.7);
     const dir = new THREE.DirectionalLight(0xffffff, 1.2);
     dir.position.set(4, 8, 6);
+
+    scene.add(ambient);
     scene.add(dir);
 
-    // === GLB Loader ===
-    const loader = new GLTFLoader();
-
-    // Pivot group for centered rotation
+    // === Pivot group (ini yang kita putar) ===
     const pivot = new THREE.Group();
     scene.add(pivot);
 
-    let logoMesh: THREE.Group | null = null;
+    let model: THREE.Group | null = null;
 
+    // === Load GLB ===
+    const loader = new GLTFLoader();
     loader.load(
       modelPath,
       (gltf) => {
-        const original = gltf.scene;
+        model = gltf.scene;
 
-        // Temukan mesh utama (bukan group kosong)
-        let mesh: THREE.Object3D | null = null;
+        // Pastikan transform sudah diproses
+        model.updateMatrixWorld(true);
 
-        original.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            mesh = child;
-          }
-        });
-
-        if (!mesh) {
-          console.error("No mesh found in GLB!");
-          return;
-        }
-
-        // Clone mesh agar pivot bisa dipindah tanpa merusak struktur GLB
-        const fixedMesh = mesh.clone(true);
-
-        // Hitung bounding box untuk mesh sebenarnya
-        const box = new THREE.Box3().setFromObject(fixedMesh);
+        // --- FIX: CENTER PIVOT 100% ---
+        const box = new THREE.Box3().setFromObject(model);
         const center = new THREE.Vector3();
         box.getCenter(center);
 
-        // Geser mesh agar center = 0,0,0
-        fixedMesh.position.sub(center);
+        // Geser seluruh GLB agar pivot tepat di tengah
+        model.position.x += (model.position.x - center.x);
+        model.position.y += (model.position.y - center.y);
+        model.position.z += (model.position.z - center.z);
 
         // Scale
-        fixedMesh.scale.set(scale, scale, scale);
+        model.scale.set(scale, scale, scale);
 
-        // Tambahkan ke pivot (untuk rotasi)
-        pivot.add(fixedMesh);
-
-        logoMesh = fixedMesh;
+        pivot.add(model);
       },
       undefined,
-      (err) => console.error("Failed to load GLB:", err)
+      (err) => console.error("GLB Load Error:", err)
     );
 
-    // === Interaction States ===
+    // === Interaction STATE ===
     let isHover = false;
-    let isHold = false;
-    let spinProgress = 0;
 
     // === DOM Events ===
     const dom = renderer.domElement;
@@ -100,36 +82,23 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
     const onEnter = () => (isHover = true);
     const onLeave = () => {
       isHover = false;
-      isHold = false;
-      spinProgress = 0;
-
-      // Reset rotation when not hovered
-      pivot.rotation.x = 0;
-      pivot.rotation.y = 0;
+      // Reset rotasi ketika mouse keluar
+      pivot.rotation.set(0, 0, 0);
     };
-
-    const onDown = () => (isHold = true);
-    const onUp = () => (isHold = false);
 
     dom.addEventListener("mouseenter", onEnter);
     dom.addEventListener("mouseleave", onLeave);
-    dom.addEventListener("mousedown", onDown);
-    window.addEventListener("mouseup", onUp);
 
-    // === Animation Loop ===
-    const animate = (t: number) => {
-      if (logoMesh) {
-        if (isHold) {
-          // HOLD → continuous 360° spin
-          spinProgress += 0.12;
-          pivot.rotation.y = spinProgress;
-        } else if (isHover) {
-          // HOVER → gentle rotation + subtle wobble
-          pivot.rotation.y += 0.06;
-          pivot.rotation.x = Math.sin(t / 400) * 0.03;
+    // === Animation ===
+    const animate = (time: number) => {
+      if (model) {
+        if (isHover) {
+          // HOVER → Putar
+          pivot.rotation.y += 0.05;
+          pivot.rotation.x = Math.sin(time / 400) * 0.03;
         } else {
-          // IDLE → NO ROTATION
-          // Keep the logo steady
+          // TIDAK HOVER → DIAM TOTAL
+          // (tanpa idle rotation)
         }
       }
 
@@ -149,21 +118,19 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
+
     window.addEventListener("resize", onResize);
 
-    // Cleanup
+    // === Cleanup ===
     return () => {
       window.removeEventListener("resize", onResize);
       dom.removeEventListener("mouseenter", onEnter);
       dom.removeEventListener("mouseleave", onLeave);
-      dom.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mouseup", onUp);
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
       renderer.dispose();
       renderer.forceContextLoss();
-
       if (mountRef.current?.contains(renderer.domElement)) {
         mountRef.current.removeChild(renderer.domElement);
       }
@@ -173,7 +140,7 @@ export default function Logo3D({ modelPath, scale = 2 }: Logo3DProps) {
   return (
     <div
       ref={mountRef}
-      className="w-full h-[200px] md:h-[240px] lg:h-[300px] flex justify-center items-center"
+      className="w-full h-[300px] md:h-[360px] lg:h-[420px]"
     />
   );
 }

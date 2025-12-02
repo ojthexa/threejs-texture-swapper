@@ -77,3 +77,14 @@ All colors MUST be HSL.
     display: none;
   }
 }
+
+/* Hide scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;  
+}
+

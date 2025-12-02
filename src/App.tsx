@@ -14,13 +14,52 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/3d-viewer" element={<Viewer3D />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        {/* Fullscreen snap scrolling wrapper */}
+        <div
+          className="
+            h-screen w-screen 
+            overflow-y-scroll overflow-x-hidden 
+            snap-y snap-mandatory 
+            no-scrollbar 
+            scroll-smooth
+          "
+          style={{
+            scrollBehavior: "smooth",
+            scrollSnapType: "y mandatory",
+          }}
+        >
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <section className="snap-start h-screen w-full">
+                  <Home />
+                </section>
+              }
+            />
+
+            <Route
+              path="/3d-viewer"
+              element={
+                <section className="snap-start h-screen w-full">
+                  <Viewer3D />
+                </section>
+              }
+            />
+
+            <Route
+              path="*"
+              element={
+                <section className="snap-start h-screen w-full">
+                  <NotFound />
+                </section>
+              }
+            />
+          </Routes>
+        </div>
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -16,7 +16,7 @@ export default function Logo3D({ modelPath }) {
     const height = mountRef.current.clientHeight;
 
     const camera = new THREE.PerspectiveCamera(28, width / height, 0.1, 100);
-    camera.position.set(0, 0, 10);
+    camera.position.set(0, 0.4, 11); // sedikit turun kamera supaya logo tetap center
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -37,7 +37,7 @@ export default function Logo3D({ modelPath }) {
     loader.load(modelPath, (gltf) => {
       model = gltf.scene;
 
-      /** --- NORMALIZING MODEL --- */
+      // Normalize pivot
       const box = new THREE.Box3().setFromObject(model);
       const center = new THREE.Vector3();
       box.getCenter(center);
@@ -46,30 +46,28 @@ export default function Logo3D({ modelPath }) {
       const sphere = new THREE.Sphere();
       box.getBoundingSphere(sphere);
 
-      /** --- FIXED SCALE (slightly smaller + proportional) --- */
+      // *** Smaller scale (1/3 reduction) ***
       const scaleFactor = (mountRef.current.clientWidth / 200) / sphere.radius;
-      model.scale.setScalar(scaleFactor * 1.15);
+      model.scale.setScalar(scaleFactor * 0.75); 
 
       pivot.add(model);
 
-      // Recalculate bounding after scale for perfect pivot correction
-      requestAnimationFrame(() => {
-        const newBox = new THREE.Box3().setFromObject(model);
+      setTimeout(() => {
+        const recalculatedBox = new THREE.Box3().setFromObject(model);
         const size = new THREE.Vector3();
-        newBox.getSize(size);
+        recalculatedBox.getSize(size);
 
-        /** --- PERFECT CENTER OFFSET --- */
-        pivot.position.x = -size.x * 0.18; // adjust balance
-        pivot.position.y = -size.y * 0.1; // slightly lower for better framing
+        // shift slightly to balance visually
+        pivot.position.x = -size.x * 0.15;
+        pivot.position.y = -size.y * 0.05; 
       });
 
-      /** --- CAMERA ADJUSTED TO AVOID CROPPING EVEN DURING ROTATION --- */
       const idealDistance = sphere.radius * 3.6;
-      camera.position.set(0, sphere.radius * 0.35, idealDistance);
+      camera.position.set(0, sphere.radius * 0.40, idealDistance);
       camera.lookAt(0, 0, 0);
     });
 
-    // ===== INTERACTION & SMOOTH ANIMATION =====
+    // Interaction logic
     let isDragging = false;
     let isHover = false;
     let lastX = 0;
@@ -105,7 +103,7 @@ export default function Logo3D({ modelPath }) {
       lastY = e.clientY;
     });
 
-    // TOUCH SUPPORT
+    // Touch support
     dom.addEventListener("touchstart", (e) => {
       isDragging = true;
       lastX = e.touches[0].clientX;
@@ -117,7 +115,7 @@ export default function Logo3D({ modelPath }) {
     dom.addEventListener("touchmove", (e) => {
       if (!isDragging || !model) return;
       const dx = e.touches[0].clientX - lastX;
-      const dy = e.touches[0].clientY - lastY;
+      const dy = e.touches[0].clientY - lastTouchY;
       velY = dx * 0.01;
       velX = dy * 0.01;
       pivot.rotation.y += velY;
@@ -126,7 +124,7 @@ export default function Logo3D({ modelPath }) {
       lastY = e.touches[0].clientY;
     });
 
-    const restRotation = { x: 0, y: 0, z: 0 };
+    const defaultRotation = { x: 0, y: 0, z: 0 };
 
     const animate = () => {
       if (model) {
@@ -138,14 +136,12 @@ export default function Logo3D({ modelPath }) {
           pivot.rotation.x += velX;
         }
 
-        // prevent full upside-down
-        pivot.rotation.x = Math.max(-0.7, Math.min(0.7, pivot.rotation.x));
+        pivot.rotation.x = Math.max(-0.75, Math.min(0.75, pivot.rotation.x));
 
-        // Auto return
         if (!isDragging && !isHover && Math.abs(velX) < 0.002 && Math.abs(velY) < 0.002) {
-          pivot.rotation.x += (restRotation.x - pivot.rotation.x) * 0.06;
-          pivot.rotation.y += (restRotation.y - pivot.rotation.y) * 0.06;
-          pivot.rotation.z += (restRotation.z - pivot.rotation.z) * 0.06;
+          pivot.rotation.x += (defaultRotation.x - pivot.rotation.x) * 0.06;
+          pivot.rotation.y += (defaultRotation.y - pivot.rotation.y) * 0.06;
+          pivot.rotation.z += (defaultRotation.z - pivot.rotation.z) * 0.06;
         }
       }
 
@@ -154,14 +150,6 @@ export default function Logo3D({ modelPath }) {
     };
 
     animate();
-
-    window.addEventListener("resize", () => {
-      const w = mountRef.current.clientWidth;
-      const h = mountRef.current.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    });
 
     return () => {
       cancelAnimationFrame(rafRef.current);
@@ -173,7 +161,7 @@ export default function Logo3D({ modelPath }) {
   return (
     <div
       ref={mountRef}
-      className="w-[320px] md:w-[500px] lg:w-[550px] h-[200px] md:h-[260px] lg:h-[300px] mx-auto flex items-center justify-center"
+      className="w-[320px] md:w-[500px] lg:w-[550px] h-[240px] md:h-[300px] lg:h-[340px] mx-auto pt-6" 
     />
   );
 }

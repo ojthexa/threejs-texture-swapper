@@ -6,9 +6,11 @@ const Navbar = ({ className }: { className?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 mix-blend-difference ${className || ''}`}>
-      <div className="container mx-auto px-6 py-4 flex items-center">
-        {/* Burger di kanan */}
+    <nav className={`fixed top-0 left-0 w-screen z-50 mix-blend-difference pointer-events-auto ${className || ''}`}>
+      
+      {/* Wrapper Navbar */}
+      <div className="max-w-screen px-6 py-4 flex items-center">
+        {/* Burger Button */}
         <button
           onClick={() => setIsOpen(true)}
           className="ml-auto text-white hover:text-primary transition-colors p-2"
@@ -17,15 +19,19 @@ const Navbar = ({ className }: { className?: string }) => {
         </button>
       </div>
 
-      {/* Overlay menu */}
+      {/* ====================== Overlay ====================== */}
       <div
-        className={`fixed inset-0 bg-background/95 backdrop-blur-lg
-        transition-all duration-500
-        ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        className={`
+          fixed top-0 left-0 w-screen h-screen 
+          bg-background/95 backdrop-blur-lg 
+          transition-all duration-500 
+          overflow-hidden touch-none
+          ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
+        `}
       >
+        {/* Close Button */}
         <div className="absolute top-4 right-4 flex flex-col items-end gap-3">
 
-          {/* Tombol X kecil */}
           <button
             onClick={() => setIsOpen(false)}
             className="text-white hover:text-primary transition-colors p-1"
@@ -33,8 +39,8 @@ const Navbar = ({ className }: { className?: string }) => {
             <X size={24} />
           </button>
 
-          {/* Menu list */}
-          <div className="flex flex-col items-end gap-2 pr-1">
+          {/* ====================== Menu Items ====================== */}
+          <div className="flex flex-col items-end gap-2 pr-1 text-right">
             <Link
               to="/"
               onClick={() => setIsOpen(false)}

@@ -9,12 +9,15 @@ export default function Showcase() {
   useEffect(() => {
     const container = containerRef.current;
     const content = contentRef.current;
+
     if (!container || !content) return;
 
     let scrollX = 0;
     const maxScroll = window.innerWidth;
 
-    // HANDLE SCROLL MANUAL
+    // -------------------------
+    //  SCROLL MANUAL (Wheel)
+    // -------------------------
     function onWheel(e: WheelEvent) {
       e.preventDefault();
       scrollX += e.deltaY;
@@ -26,9 +29,12 @@ export default function Showcase() {
 
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    // HANDLE KLIK TOMBOL → AUTO SLIDE KE SECTION 2
+    // -----------------------------------------
+    //  TOMBOL "Explore Our Solutions" → SLIDE
+    // -----------------------------------------
     setTimeout(() => {
       const btn = document.getElementById("go-cubes");
+
       if (btn) {
         btn.onclick = () => {
           scrollX = maxScroll;
@@ -39,11 +45,15 @@ export default function Showcase() {
       }
     }, 50);
 
+    // Cleanup
     return () => {
       container.removeEventListener("wheel", onWheel);
     };
   }, []);
 
+  // -------------------------
+  //  RENDER SHOWCASE LAYOUT
+  // -------------------------
   return (
     <div
       ref={containerRef}
@@ -59,12 +69,12 @@ export default function Showcase() {
           willChange: "transform",
         }}
       >
-        {/* SECTION 1 */}
+        {/* SECTION 1: HOME */}
         <div className="w-screen h-screen relative overflow-hidden">
           <Home />
         </div>
 
-        {/* SECTION 2 */}
+        {/* SECTION 2: CUBESWITCHER */}
         <div className="w-screen h-screen relative overflow-hidden">
           <CubeSwitcher />
         </div>

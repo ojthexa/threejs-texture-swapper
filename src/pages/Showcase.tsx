@@ -30,26 +30,21 @@ export default function Showcase() {
     //  SCROLL HANDLER
     // -------------------------
     function onWheel(e: WheelEvent) {
-      // If already on second panel (CubeSwitcher), do NOT intercept wheel:
-      // let the wheel event bubble so OrbitControls / canvas can use it (zoom).
-      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      if (alreadyOnSecond) {
-        // do nothing here — allow the event to reach the canvas
-        return;
+
+      const isMobileOrTablet = window.innerWidth <= 1024;
+      if (isMobileOrTablet) {
+        // STOP panel horizontal, langsung biarkan canvas menerima event
+        return; 
       }
 
-      // If not yet on second, we handle horizontal translation:
-      e.preventDefault();
-      // accumulate
-      scrollXRef.current += e.deltaY;
-      // clamp
-      scrollXRef.current = Math.max(0, Math.min(scrollXRef.current, maxScroll));
+      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
+      if (alreadyOnSecond) return;
 
-      // apply transform
+      e.preventDefault();
+      scrollXRef.current += e.deltaY;
+      scrollXRef.current = Math.max(0, Math.min(scrollXRef.current, maxScroll));
       content.style.transform = `translateX(-${scrollXRef.current}px)`;
       content.style.transition = "transform 0.32s ease-out";
-
-      // update UI flag
       updateIsOnSecond();
     }
 

@@ -37,35 +37,54 @@ export default function Logo3D({ modelPath }) {
     loader.load(modelPath, (gltf) => {
       model = gltf.scene;
 
-      // --- Normalize pivot: center model exactly ---
+      // Tentukan bounding box
       const box = new THREE.Box3().setFromObject(model);
       const center = new THREE.Vector3();
       box.getCenter(center);
-      model.position.sub(center); // pure center
 
-      // --- (Custom model offset fix) ---
-      // Perhitungan dari file GLB Anda:
-      // pivot miring ke kanan ~0.23 satuan (dari bounding box)
-      model.position.x += 0.23;
+      // Normalisasi pivot
+      model.position.sub(center);
 
-      // --- Bounding sphere for size ---
+      // Hitung ulang setelah normalisasi
+      const size = new THREE.Vector3();
+      box.getSize(size);
+
+      // --------------------------------------------
+      // 💡 DETEKSI BLANK SPACE KIRI & KOMPENSASI
+      // --------------------------------------------
+
+      const min = box.min.x - center.x;  // jarak sisi kiri
+      const max = box.max.x - center.x;  // jarak sisi kanan
+
+      // Jika sisi kiri lebih luas → kompensasikan geseran
+      if (Math.abs(min) > Math.abs(max)) {
+        const offset = (Math.abs(min) - Math.abs(max)) * 0.5;
+        model.position.x += offset;
+      }
+      // Jika kanan lebih luas (jaga-jaga)
+      else if (Math.abs(max) > Math.abs(min)) {
+        const offset = (Math.abs(max) - Math.abs(min)) * 0.5;
+        model.position.x -= offset;
+      }
+
+      // --------------------------------------------
+
+      // bounding sphere for scaling
       const sphere = new THREE.Sphere();
       box.getBoundingSphere(sphere);
 
-      // --- scale smaller ---
-      const scaleFactor = 1.45 / sphere.radius;   // previously too large
+      const scaleFactor = 1.45 / sphere.radius;
       model.scale.setScalar(scaleFactor);
 
       pivot.add(model);
 
-      // pure center (no shifting)
       pivot.position.set(0, 0, 0);
 
-      // camera distance
       const idealDistance = sphere.radius * 3.2;
       camera.position.set(0, sphere.radius * 0.32, idealDistance);
       camera.lookAt(0, 0, 0);
     });
+
 
     // Interaction
     let isDragging = false;

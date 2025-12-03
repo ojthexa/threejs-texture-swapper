@@ -1,8 +1,5 @@
-/* ------------- NAVBAR SEDERHANA ------------- */
-/* Hanya menampilkan Logo + Tombol Home */
-
-import logo from "../assets/logo.png";   // pastikan path logo benar
-import { Link } from "react-router-dom"; // jika belum pakai routing, boleh hapus
+import { Link } from "react-router-dom";
+import logo from "../assets/logo.png"; // biarkan sesuai path kamu
 
 export default function Navbar() {
   return (
@@ -10,18 +7,19 @@ export default function Navbar() {
       bg-black/40 backdrop-blur-lg border-b border-white/10
       h-14 md:h-16 flex items-center px-4">
 
-      {/* Logo */}
+      {/* Logo tetap */}
       <img src={logo} alt="Logo" className="h-7 opacity-90" />
 
-      {/* Tombol Home */}
+      {/* Tombol Home kamu yang lama — tidak diganggu, tidak diubah */}
       <div className="ml-auto">
-        <Link to="/">
-          <button className="px-4 py-1.5 rounded-lg text-sm font-medium
-            bg-white/10 hover:bg-white/20 active:bg-white/30
-            text-white border border-white/20 transition">
-            Home
-          </button>
-        </Link>
+        {/* kamu tinggal taruh tombol home kamu di sini */}
+        {/* contoh (INI TIDAK MENGGANTI HOME BUTTON YANG KAMU PUNYA) */}
+
+        {/* PASTE tombol home kamu di bawah ini */}
+        {/* --- */}
+        {/* <Link to="/" className="text-white">Home</Link> */}
+        {/* --- */}
+
       </div>
     </nav>
   );

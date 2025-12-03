@@ -76,7 +76,7 @@ function Fence({
       texture.wrapT = THREE.RepeatWrapping;
       texture.repeat.set(3, 2);
       texture.offset.set(0, 0);
-      texture.center.set(0.5, 0.5);
+      texture.center.set(0, 0);
       texture.needsUpdate = true;
       
       // Parse hex color to RGB

@@ -22,7 +22,7 @@ export default function Home() {
         <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px] animate-pulse delay-1000 pointer-events-none" />
 
         {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-5xl">
+        <div className="relative z-10 text-center px-6 max-w-5xl pointer-events-auto">
 
           {/* Logo 3D */}
           <div className="flex justify-center -mt-4 md:-mt-8 lg:-mt-8 mb-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 pointer-events-none">

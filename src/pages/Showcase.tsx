@@ -9,92 +9,96 @@ export default function Showcase() {
   const scrollXRef = useRef(0);
   const [isOnSecond, setIsOnSecond] = useState(false);
 
-  // === Detect mobile & tablet live ===
+  // Helper
   const isMobileTablet = () => window.innerWidth <= 1024;
-  const mq = window.matchMedia("(max-width:1024px)");
+  const snap = window.innerWidth; // jarak panel = 1 layar
 
-  // === Navigation helper ===
-  const scrollTo = (x: number, anim = true) => {
+  const animateScroll = (x: number) => {
     const el = contentRef.current;
     if (!el) return;
     scrollXRef.current = x;
+    el.style.transition = "transform .45s cubic-bezier(0.25, 0.8, 0.25, 1)";
     el.style.transform = `translateX(-${x}px)`;
-    el.style.transition = anim
-      ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
-      : "none";
+    setIsOnSecond(x >= snap - 5);
   };
 
-  const goSecond = () => {
-    scrollTo(window.innerWidth);
-    setTimeout(() => setIsOnSecond(true), 80);
-  };
+  const goHome = () => animateScroll(0);
+  const goSecond = () => animateScroll(snap);
 
-  const goHome = () => {
-    scrollTo(0);
-    setIsOnSecond(false);
-  };
-
-  // =============================================
-  // Initial Setup
-  // =============================================
+  // ======================================================
+  // Desktop → scroll wheel horizontal
+  // ======================================================
   useEffect(() => {
+    if (isMobileTablet()) return; // skip if mobile
+
     const container = containerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
 
-    const maxScroll = window.innerWidth;
-    const snap = 8;
-
-    const updateSecondState = () => {
-      setIsOnSecond(scrollXRef.current >= maxScroll - snap);
-    };
-
-    // --- Wheel Handler with Mobile Stopper ---
     const onWheel = (e: WheelEvent) => {
-      if (isMobileTablet()) return; // stopper aktif di mobile/tablet
+      const max = snap;
+      const isSecond = scrollXRef.current >= max - 5;
 
-      const alreadySecond = scrollXRef.current >= maxScroll - snap;
-      if (alreadySecond) return;
+      if (isSecond) return;         // Biarkan canvas bebas scroll
+      e.preventDefault();           // hentikan scroll default
 
-      e.preventDefault();
-      scrollXRef.current = Math.min(maxScroll, Math.max(0, scrollXRef.current + e.deltaY));
-      scrollTo(scrollXRef.current);
-      updateSecondState();
+      scrollXRef.current = Math.min(max, Math.max(0, scrollXRef.current + e.deltaY));
+      content.style.transform = `translateX(-${scrollXRef.current}px)`;
+      content.style.transition = "transform .3s ease-out";
+
+      setIsOnSecond(scrollXRef.current >= max - 5);
     };
 
     container.addEventListener("wheel", onWheel, { passive: false });
+    return () => container.removeEventListener("wheel", onWheel);
+  }, []);
 
-    // --- Setup Explore Button in Home ---
-    const timer = setTimeout(() => {
-      const btn = document.getElementById("go-cubes");
-      btn && (btn.onclick = goSecond);
-    }, 80);
+  // ======================================================
+  // Mobile/Tablet → Swipe Gesture (Touch Drag)
+  // ======================================================
+  useEffect(() => {
+    if (!isMobileTablet()) return; // hanya aktif untuk mobile/tablet
 
-    // --- Handle Responsive Resize + matchMedia change ---
-    const handleResponsive = () => {
-      if (isMobileTablet()) {
-        scrollTo(0, false);
-        setIsOnSecond(false);
-      } else if (scrollXRef.current > 0) {
-        goSecond();
-      }
+    const content = contentRef.current;
+    if (!content) return;
+
+    let startX = 0;
+    let current = 0;
+    let isDragging = false;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      isDragging = true;
+      content.style.transition = "none";
     };
 
-    window.addEventListener("resize", handleResponsive);
-    mq.addEventListener("change", handleResponsive);
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      const diff = startX - e.touches[0].clientX;
+      current = Math.min(snap, Math.max(0, scrollXRef.current + diff));
+      content.style.transform = `translateX(-${current}px)`;
+    };
+
+    const onTouchEnd = () => {
+      isDragging = false;
+      scrollXRef.current = current;
+      if (current > snap / 2) goSecond();
+      else goHome();
+    };
+
+    content.addEventListener("touchstart", onTouchStart);
+    content.addEventListener("touchmove", onTouchMove);
+    content.addEventListener("touchend", onTouchEnd);
 
     return () => {
-      clearTimeout(timer);
-      container.removeEventListener("wheel", onWheel);
-      window.removeEventListener("resize", handleResponsive);
-      mq.removeEventListener("change", handleResponsive);
+      content.removeEventListener("touchstart", onTouchStart);
+      content.removeEventListener("touchmove", onTouchMove);
+      content.removeEventListener("touchend", onTouchEnd);
     };
   }, []);
 
   return (
     <div ref={containerRef} className="w-screen h-screen overflow-hidden bg-black relative">
-
-      {/* Back button only when panel-2 */}
       {isOnSecond && (
         <button
           onClick={goHome}
@@ -106,19 +110,15 @@ export default function Showcase() {
       <div
         ref={contentRef}
         className="flex h-full"
-        style={{ width: isMobileTablet() ? "100vw" : "200vw", willChange: "transform" }}>
-
-        {/* Panel 1 */}
+        style={{ width: "200vw", willChange: "transform" }}
+      >
         <div className="w-screen h-screen">
           <Home hideNavbar />
         </div>
 
-        {/* Panel 2 */}
-        {!isMobileTablet() && (
-          <div className="w-screen h-screen">
-            <CubeSwitcher />
-          </div>
-        )}
+        <div className="w-screen h-screen">
+          <CubeSwitcher />
+        </div>
       </div>
     </div>
   );

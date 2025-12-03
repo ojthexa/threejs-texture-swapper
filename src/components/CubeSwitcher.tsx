@@ -74,7 +74,7 @@ function Fence({
       // Configure texture wrapping and tiling
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(3, 2);
+      texture.repeat.set(4, 2);
       texture.offset.set(0, 0);
       texture.center.set(0, 0);
       texture.needsUpdate = true;

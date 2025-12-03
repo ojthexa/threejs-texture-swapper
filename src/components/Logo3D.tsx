@@ -68,7 +68,7 @@ export default function Logo3D({ modelPath }) {
       // -----------------------------------------------------
       // 💡 Fine-tuning manual (GESER KE KANAN)
       // -----------------------------------------------------
-      model.position.x += 0.13; 
+      model.position.x += 0.08; 
       // Sesuaikan 0.05 → 0.06 / 0.07 untuk lebih geser kanan
 
       // bounding sphere for scaling

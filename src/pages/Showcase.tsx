@@ -1,139 +1,147 @@
 import { useEffect, useRef, useState } from "react";
 import Home from "./Home";
 import CubeSwitcher from "@/components/CubeSwitcher";
-import Navbar from "@/components/Navbar"; // pastikan ini ada import!
 
 export default function Showcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // scrollXRef agar update tanpa render
   const scrollXRef = useRef(0);
+
+  // state untuk UI (tombol Home) — render only when needed
   const [isOnSecond, setIsOnSecond] = useState(false);
 
-  const isMobileTablet = () => window.innerWidth <= 1024;
-  const getSnap = () => window.innerWidth; // JARAK PANEL → ikut ukuran device
-
-  /** =========================================================
-   * ANIMATE SLIDE TRANSITION
-   * =======================================================*/
-  const animateTo = (x: number) => {
-    const el = contentRef.current;
-    if (!el) return;
-    scrollXRef.current = x;
-    el.style.transition = "transform .45s cubic-bezier(.25,.8,.25,1)";
-    el.style.transform = `translateX(-${x}px)`;
-    setIsOnSecond(x >= getSnap() - 5);
-  };
-
-  const goHome = () => animateTo(0);
-  const goSecond = () => animateTo(getSnap());
-
-  /** =========================================================
-   * Desktop — scroll wheel horizontal
-   * ========================================================= */
   useEffect(() => {
-    if (isMobileTablet()) return; // skip jika mobile/tablet
-
     const container = containerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
 
-    const onWheel = (e: WheelEvent) => {
-      const max = getSnap();
-      const reachedEnd = scrollXRef.current >= max - 5;
+    const sectionWidth = window.innerWidth;
+    const maxScroll = sectionWidth;
+    const snapThreshold = 8; // toleransi px untuk menentukan "on second"
 
-      if (reachedEnd) return; // canvas bebas scroll/zoom
+    function updateIsOnSecond() {
+      const isSecond = scrollXRef.current >= maxScroll - snapThreshold;
+      setIsOnSecond(isSecond);
+    }
 
+    // -------------------------
+    //  SCROLL HANDLER
+    // -------------------------
+    function onWheel(e: WheelEvent) {
+      // If already on second panel (CubeSwitcher), do NOT intercept wheel:
+      // let the wheel event bubble so OrbitControls / canvas can use it (zoom).
+      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
+      if (alreadyOnSecond) {
+        // do nothing here — allow the event to reach the canvas
+        return;
+      }
+
+      // If not yet on second, we handle horizontal translation:
       e.preventDefault();
-      scrollXRef.current = Math.min(max, Math.max(0, scrollXRef.current + e.deltaY));
+      // accumulate
+      scrollXRef.current += e.deltaY;
+      // clamp
+      scrollXRef.current = Math.max(0, Math.min(scrollXRef.current, maxScroll));
+
+      // apply transform
       content.style.transform = `translateX(-${scrollXRef.current}px)`;
-      content.style.transition = "transform .3s ease-out";
-      setIsOnSecond(scrollXRef.current >= max - 5);
-    };
+      content.style.transition = "transform 0.32s ease-out";
+
+      // update UI flag
+      updateIsOnSecond();
+    }
 
     container.addEventListener("wheel", onWheel, { passive: false });
-    return () => container.removeEventListener("wheel", onWheel);
+
+    // -------------------------
+    //  BUTTON "Explore" (already in Home)
+    //  Ensure its click exists after DOM renders
+    // -------------------------
+    const setupExploreButton = () => {
+      const btn = document.getElementById("go-cubes");
+      if (btn) {
+        btn.onclick = () => {
+          scrollXRef.current = maxScroll;
+          content.style.transform = `translateX(-${scrollXRef.current}px)`;
+          content.style.transition =
+            "transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1)";
+          // ensure state updated
+          setTimeout(() => setIsOnSecond(true), 60);
+        };
+      }
+    };
+
+    // small timeout to wait for Home DOM (button) to appear
+    const t = setTimeout(setupExploreButton, 80);
+
+    // handle resize: update layout (section width) and clamp scroll
+    function handleResize() {
+      const newWidth = window.innerWidth;
+      // if section width changed (responsive), we need to adjust max and current scroll
+      // naive approach: if new width differs, remap scroll to either 0 or newWidth if near edges
+      // keep behavior simple: if we were at second, keep at second
+      if (scrollXRef.current >= maxScroll - snapThreshold) {
+        // snap to new second
+        scrollXRef.current = newWidth;
+        content.style.transform = `translateX(-${scrollXRef.current}px)`;
+      }
+    }
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      clearTimeout(t);
+      container.removeEventListener("wheel", onWheel);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
-  /** =========================================================
-   * Mobile & Tablet — swipe left/right
-   * ========================================================= */
-  useEffect(() => {
-    if (!isMobileTablet()) return;
-
+  // -------------------------
+  //  HOME BUTTON (visible only on second panel)
+  // -------------------------
+  const handleGoHome = () => {
     const content = contentRef.current;
     if (!content) return;
-
-    let startX = 0;
-    let curr = 0;
-    let drag = false;
-
-    const start = (e: TouchEvent) => {
-      drag = true;
-      startX = e.touches[0].clientX;
-      content.style.transition = "none";
-    };
-
-    const move = (e: TouchEvent) => {
-      if (!drag) return;
-      const diff = startX - e.touches[0].clientX;
-      curr = Math.min(getSnap(), Math.max(0, scrollXRef.current + diff));
-      content.style.transform = `translateX(-${curr}px)`;
-    };
-
-    const end = () => {
-      drag = false;
-      scrollXRef.current = curr;
-      curr > getSnap() / 2 ? goSecond() : goHome(); // SNAP LOGIC
-    };
-
-    content.addEventListener("touchstart", start);
-    content.addEventListener("touchmove", move);
-    content.addEventListener("touchend", end);
-
-    return () => {
-      content.removeEventListener("touchstart", start);
-      content.removeEventListener("touchmove", move);
-      content.removeEventListener("touchend", end);
-    };
-  }, []);
+    // animate back to 0
+    scrollXRef.current = 0;
+    content.style.transform = `translateX(-0px)`;
+    content.style.transition = "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)";
+    setIsOnSecond(false);
+  };
 
   return (
-    <div ref={containerRef} className="w-screen h-screen overflow-hidden bg-black relative">
-
-      {/* Navbar hanya muncul di panel CubeSwitcher */}
-      {isOnSecond && (
-        <Navbar 
-          className={`fixed top-0 left-0 w-screen z-50 transition-all duration-300
-          ${isOnSecond ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-        />
-      )}
-
-      {/* Home Button (opsional boleh pakai/skip) */}
+    <div
+      ref={containerRef}
+      className="w-screen h-screen overflow-hidden bg-black relative"
+    >
+      {/* Home button shown when on CubeSwitcher (panel 2) */}
       {isOnSecond && (
         <button
-          onClick={goHome}
-          className="fixed top-4 right-4 z-[60] px-3 py-1 bg-white/30 text-white backdrop-blur-sm rounded-md border border-white/30 text-sm"
+          onClick={handleGoHome}
+          className="fixed top-4 right-4 z-50 px-3 py-2 rounded-md bg-background/80 backdrop-blur border border-primary/30 text-sm font-semibold text-foreground shadow"
+          aria-label="Back to Home"
         >
           Home
         </button>
       )}
 
-      {/* Panels */}
       <div
         ref={contentRef}
         className="flex h-full"
         style={{ width: "200vw", willChange: "transform" }}
       >
-        {/* PANEL HOME */}
-        <section className="min-w-[100vw] w-[100vw] h-screen overflow-hidden">
+        {/* SECTION 1 */}
+        <div className="w-screen h-screen">
+          {/* hide navbar so CubeSwitcher will not show burger etc. */}
           <Home hideNavbar />
-        </section>
+        </div>
 
-        {/* PANEL CUBESWITCHER */}
-        <section className="min-w-[100vw] w-[100vw] h-screen overflow-hidden">
+        {/* SECTION 2 */}
+        <div className="w-screen h-screen">
           <CubeSwitcher />
-        </section>
+        </div>
       </div>
     </div>
   );

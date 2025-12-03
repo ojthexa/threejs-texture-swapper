@@ -58,7 +58,7 @@ export default function Logo3D({ modelPath }) {
         recalculatedBox.getSize(size);
 
         // shift slightly to balance visually
-        pivot.position.x = -size.x * 0.15;
+        pivot.position.x = -size.x * 0.05;
         pivot.position.y = -size.y * 0.05; 
       });
 
@@ -165,3 +165,4 @@ export default function Logo3D({ modelPath }) {
     />
   );
 }
+

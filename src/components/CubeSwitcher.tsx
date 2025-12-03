@@ -369,10 +369,11 @@ export default function CubeSwitcher() {
         </div>
       </div>
 
-      <Canvas
-        camera={{ position: [5, 3, 5], fov: 50 }}
-        className="w-full h-full"
-      >
+      <div className="absolute inset-0 bottom-48">
+        <Canvas
+          camera={{ position: [5, 3, 5], fov: 50 }}
+          className="w-full h-full"
+        >
         <color attach="background" args={["#050505"]} />
         
         <ambientLight intensity={0.5} />
@@ -395,7 +396,8 @@ export default function CubeSwitcher() {
           rotateSpeed={0.5}
           zoomSpeed={0.8}
         />
-      </Canvas>
+        </Canvas>
+      </div>
     </div>
   );
 }

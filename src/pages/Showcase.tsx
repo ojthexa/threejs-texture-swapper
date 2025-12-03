@@ -9,15 +9,11 @@ export default function Showcase() {
   useEffect(() => {
     const container = containerRef.current;
     const content = contentRef.current;
-
     if (!container || !content) return;
 
     let scrollX = 0;
     const maxScroll = window.innerWidth;
 
-    // -------------------------
-    //  SCROLL MANUAL (Wheel)
-    // -------------------------
     function onWheel(e: WheelEvent) {
       e.preventDefault();
       scrollX += e.deltaY;
@@ -29,12 +25,8 @@ export default function Showcase() {
 
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    // -----------------------------------------
-    //  TOMBOL "Explore Our Solutions" → SLIDE
-    // -----------------------------------------
     setTimeout(() => {
       const btn = document.getElementById("go-cubes");
-
       if (btn) {
         btn.onclick = () => {
           scrollX = maxScroll;
@@ -43,39 +35,26 @@ export default function Showcase() {
             "transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1)";
         };
       }
-    }, 50);
+    }, 100);
 
-    // Cleanup
-    return () => {
-      container.removeEventListener("wheel", onWheel);
-    };
+    return () => container.removeEventListener("wheel", onWheel);
   }, []);
 
-  // -------------------------
-  //  RENDER SHOWCASE LAYOUT
-  // -------------------------
   return (
     <div
       ref={containerRef}
       className="w-screen h-screen overflow-hidden bg-black relative"
-      style={{ position: "relative", zIndex: 1 }}
     >
       <div
         ref={contentRef}
         className="flex h-full"
-        style={{
-          width: "200vw",
-          height: "100%",
-          willChange: "transform",
-        }}
+        style={{ width: "200vw", willChange: "transform" }}
       >
-        {/* SECTION 1: HOME */}
-        <div className="w-screen h-screen relative overflow-hidden">
-          <Home />
+        <div className="w-screen h-screen">
+          <Home hideNavbar />
         </div>
 
-        {/* SECTION 2: CUBESWITCHER */}
-        <div className="w-screen h-screen relative overflow-hidden">
+        <div className="w-screen h-screen">
           <CubeSwitcher />
         </div>
       </div>

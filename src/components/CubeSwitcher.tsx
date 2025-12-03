@@ -187,33 +187,39 @@ function ColorPicker({
   disabled: boolean;
 }) {
   return (
-    <div className={`flex flex-col gap-3 p-4 bg-background/90 backdrop-blur-md rounded-xl border-2 border-primary/30 ${disabled ? 'opacity-50' : ''}`}>
-      <div className="flex items-center gap-2 mb-1">
-        <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
-        <span className="text-xs font-bold text-foreground uppercase tracking-wider">Color Tint</span>
-      </div>
-      
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => onColorChange(e.target.value)}
-            disabled={disabled}
-            className="w-12 h-12 rounded-lg cursor-pointer border-2 border-primary/50 bg-transparent"
-            style={{ 
-              WebkitAppearance: 'none',
-              padding: 0,
-            }}
-          />
-          <div 
-            className="absolute inset-0 rounded-lg pointer-events-none border-2 border-primary/30"
-            style={{ backgroundColor: color }}
-          />
+    <div
+      className={`
+        flex flex-col gap-2 p-3 bg-background/90 backdrop-blur-md 
+        rounded-xl border-2 border-primary/30
+        ${disabled ? 'opacity-50' : ''}
+      `}
+    >
+
+      {/* ====== MOBILE (COMPACT) ====== */}
+      <div className="block sm:hidden">
+        {/* Label */}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+          <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">
+            Color
+          </span>
         </div>
-        
-        <div className="flex flex-col gap-1 flex-1">
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">Intensity</label>
+
+        {/* COLOR PICKER SMALL */}
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => onColorChange(e.target.value)}
+          disabled={disabled}
+          className="w-10 h-10 rounded-lg border border-primary/50 p-0 cursor-pointer"
+          style={{ WebkitAppearance: "none" }}
+        />
+
+        {/* INTENSITY BELOW */}
+        <div className="mt-2">
+          <span className="text-[9px] text-muted-foreground uppercase tracking-wide">
+            Intensity
+          </span>
           <input
             type="range"
             min="0"
@@ -221,22 +227,60 @@ function ColorPicker({
             value={opacity * 100}
             onChange={(e) => onOpacityChange(Number(e.target.value) / 100)}
             disabled={disabled}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+            className="w-full h-1 bg-muted rounded-lg cursor-pointer accent-primary"
           />
-          <span className="text-[10px] text-muted-foreground text-right">{Math.round(opacity * 100)}%</span>
+          <span className="text-[9px] text-muted-foreground float-right">
+            {Math.round(opacity * 100)}%
+          </span>
         </div>
       </div>
-      
-      <button
-        onClick={() => {
-          onColorChange('#ffffff');
-          onOpacityChange(0);
-        }}
-        disabled={disabled}
-        className="text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase tracking-wide"
-      >
-        Reset Color
-      </button>
+
+      {/* ====== DESKTOP / TABLET ====== */}
+      <div className="hidden sm:flex flex-col gap-3">
+
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">
+            Color Tint
+          </span>
+        </div>
+
+        {/* Color Picker */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => onColorChange(e.target.value)}
+              disabled={disabled}
+              className="w-12 h-12 rounded-lg cursor-pointer border-2 border-primary/50 bg-transparent"
+              style={{ WebkitAppearance: "none", padding: 0 }}
+            />
+            <div className="absolute inset-0 rounded-lg pointer-events-none border-2 border-primary/30" />
+          </div>
+
+          {/* Slider */}
+          <div className="flex flex-col gap-1 flex-1">
+            <label className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              Intensity
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={opacity * 100}
+              onChange={(e) => onOpacityChange(Number(e.target.value) / 100)}
+              disabled={disabled}
+              className="w-full h-2 bg-muted rounded-lg cursor-pointer accent-primary"
+            />
+            <span className="text-[10px] text-muted-foreground text-right">
+              {Math.round(opacity * 100)}%
+            </span>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

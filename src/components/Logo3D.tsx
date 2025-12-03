@@ -60,14 +60,16 @@ export default function Logo3D({ modelPath }) {
       if (Math.abs(min) > Math.abs(max)) {
         const offset = (Math.abs(min) - Math.abs(max)) * 0.5;
         model.position.x += offset;
-      }
-      // Jika kanan lebih luas (jaga-jaga)
-      else if (Math.abs(max) > Math.abs(min)) {
+      } else if (Math.abs(max) > Math.abs(min)) {
         const offset = (Math.abs(max) - Math.abs(min)) * 0.5;
         model.position.x -= offset;
       }
 
-      // --------------------------------------------
+      // -----------------------------------------------------
+      // 💡 Fine-tuning manual (GESER KE KANAN)
+      // -----------------------------------------------------
+      model.position.x += 0.05; 
+      // Sesuaikan 0.05 → 0.06 / 0.07 untuk lebih geser kanan
 
       // bounding sphere for scaling
       const sphere = new THREE.Sphere();

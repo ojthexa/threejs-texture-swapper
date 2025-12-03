@@ -110,7 +110,7 @@ export default function Showcase() {
       <div
         ref={contentRef}
         className="flex h-full"
-        style={{ width: "200vw", willChange: "transform" }}
+        style={{ width: "100vw", willChange: "transform" }}
       >
         <div className="w-screen h-screen">
           <Home hideNavbar />

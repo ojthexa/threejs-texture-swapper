@@ -152,6 +152,7 @@ export default function Logo3D({ modelPath }) {
     <div
       ref={mountRef}
       className="
+        pointer-events-auto
         w-[260px] h-[180px]
         sm:w-[320px] sm:h-[220px]
         md:w-[420px] md:h-[280px]

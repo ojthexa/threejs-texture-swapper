@@ -311,106 +311,89 @@ export default function CubeSwitcher() {
           </div>
         </div>
 
-      {/* Bottom Panel – Texture Row Only */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
+      {/* Bottom Panel */}
+<div className="absolute bottom-0 left-0 right-0 z-20 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
 
-        <div className="px-4 pt-3 pb-4 flex flex-col gap-3">
+  <div className="px-4 pt-3 pb-4 flex flex-col gap-3">
 
-          {/* Selected Title */}
-          {selectedBox !== null && (
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              <h3 className="text-sm font-bold tracking-wide text-primary uppercase">
-                {boxNames[selectedBox]}
-              </h3>
-            </div>
-          )}
+    {/* TITLE */}
+    {selectedBox !== null && (
+      <div className="flex items-center gap-2">
+        <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+        <h3 className="text-sm font-bold tracking-wide text-primary uppercase">
+          {boxNames[selectedBox]}
+        </h3>
+      </div>
+    )}
 
-          {/* TEXTURE ROW + NEXT/BACK */}
-          <div className="flex items-center gap-3">
+    {/* MAIN ROW — TEXTURE LEFT + COLOR PICKER RIGHT */}
+    <div className="flex items-start gap-4 w-full">
 
-            {/* BACK */}
+      {/* ================= TEXTURE SWITCH (LEFT) ================= */}
+      <div className="flex-1 flex items-center gap-2">
+
+        {/* Back Button */}
+        <button
+          onClick={() => {
+            const el = document.getElementById("texture-row");
+            if (el) el.scrollBy({ left: -140, behavior: "smooth" });
+          }}
+          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+        >
+          ‹
+        </button>
+
+        {/* Texture List (1 Row) */}
+        <div
+          id="texture-row"
+          className="
+            flex-1 overflow-x-auto scrollbar-hide 
+            flex gap-3 pb-1 snap-x snap-mandatory
+          "
+        >
+          {textures.map((texture) => (
             <button
-              onClick={() => {
-                const el = document.getElementById("texture-row");
-                if (el) el.scrollBy({ left: -140, behavior: "smooth" });
-              }}
-              className="w-8 h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+              key={texture.value}
+              onClick={() => handleTextureChange(texture.value)}
+              disabled={selectedBox === null}
+              className={`
+                snap-start flex-shrink-0 
+                w-14 h-14 sm:w-20 sm:h-20 
+                rounded-lg overflow-hidden border-2 relative transition-all
+                ${selectedBox !== null && boxTextures[selectedBox] === texture.value
+                  ? "border-primary shadow-[0_0_15px_hsl(var(--primary)/0.6)] scale-105"
+                  : "border-border hover:border-primary/50 hover:scale-105"}
+                ${selectedBox === null ? "opacity-40 cursor-not-allowed" : ""}
+              `}
             >
-              ‹
+              <img
+                src={texture.image}
+                alt={texture.label}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent flex items-end justify-center pb-1">
+                <span className="text-[7px] sm:text-[9px] font-bold text-foreground uppercase tracking-wider">
+                  {texture.label}
+                </span>
+              </div>
             </button>
-
-            {/* TEXTURE CAROUSEL (1 ROW) */}
-            <div
-              id="texture-row"
-              className="
-                flex-1 overflow-x-auto scrollbar-hide 
-                flex gap-3 pb-1 snap-x snap-mandatory
-              "
-            >
-              {textures.map((texture) => (
-                <button
-                  key={texture.value}
-                  onClick={() => handleTextureChange(texture.value)}
-                  disabled={selectedBox === null}
-                  className={`
-                    snap-start flex-shrink-0
-                    w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
-                    ${selectedBox !== null && boxTextures[selectedBox] === texture.value
-                      ? "border-primary shadow-[0_0_15px_hsl(var(--primary)/0.6)] scale-105"
-                      : "border-border hover:border-primary/50 hover:scale-105"}
-                    ${selectedBox === null ? "opacity-40 cursor-not-allowed" : ""}
-                  `}
-                >
-                  <img
-                    src={texture.image}
-                    alt={texture.label}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent flex items-end justify-center pb-1">
-                    <span className="text-[8px] sm:text-[9px] font-bold text-foreground uppercase tracking-wider">
-                      {texture.label}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* NEXT */}
-            <button
-              onClick={() => {
-                const el = document.getElementById("texture-row");
-                if (el) el.scrollBy({ left: 140, behavior: "smooth" });
-              }}
-              className="w-8 h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
-            >
-              ›
-            </button>
-
-          </div>
-
-          {/* Hint */}
-          {selectedBox === null && (
-            <div className="flex items-center justify-center gap-2 mt-1">
-              <div className="w-1 h-1 bg-accent rounded-full animate-pulse" />
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                Klik pagar untuk memilih
-              </p>
-            </div>
-          )}
+          ))}
         </div>
+
+        {/* Next Button */}
+        <button
+          onClick={() => {
+            const el = document.getElementById("texture-row");
+            if (el) el.scrollBy({ left: 140, behavior: "smooth" });
+          }}
+          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+        >
+          ›
+        </button>
       </div>
 
-
-      {/* COLOR PICKER FIXED RIGHT */}
-      <div
-        className="
-          fixed right-2 top-1/2 -translate-y-1/2 
-          z-30 w-36 sm:w-44 lg:w-52
-          bg-background/95 backdrop-blur-lg border border-primary/40 rounded-xl shadow-xl
-          p-3
-        "
-      >
+      {/* ================= COLOR PICKER (RIGHT) ================= */}
+      <div className="w-32 sm:w-40">
         <ColorPicker
           color={currentColor}
           opacity={currentOpacity}
@@ -419,6 +402,21 @@ export default function CubeSwitcher() {
           disabled={selectedBox === null}
         />
       </div>
+
+    </div>
+
+    {/* Hint */}
+    {selectedBox === null && (
+      <div className="flex items-center justify-center gap-2 mt-1">
+        <div className="w-1 h-1 bg-accent rounded-full animate-pulse" />
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+          Klik pagar untuk memilih
+        </p>
+      </div>
+    )}
+
+  </div>
+</div>
 
       <div className="absolute inset-0 bottom-48">
         <Canvas

@@ -246,10 +246,10 @@ export default function CubeSwitcher() {
     "flower", "mahkota", "himawari", "taurus"
   ]);
   const [colorOverlays, setColorOverlays] = useState<ColorOverlay[]>([
-    { color: '#ffffff', opacity: 0 },
-    { color: '#ffffff', opacity: 0 },
-    { color: '#ffffff', opacity: 0 },
-    { color: '#ffffff', opacity: 0 },
+    { color: '#ffffff', opacity: 1 },
+    { color: '#ffffff', opacity: 1 },
+    { color: '#ffffff', opacity: 1 },
+    { color: '#ffffff', opacity: 1 },
   ]);
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
   const [hoveredBox, setHoveredBox] = useState<number | null>(null);

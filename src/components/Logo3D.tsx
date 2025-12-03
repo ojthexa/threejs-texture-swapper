@@ -15,8 +15,8 @@ export default function Logo3D({ modelPath }) {
   const width = mountRef.current.clientWidth;
   const height = mountRef.current.clientHeight;
 
-  const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 100);
-  camera.position.set(0, 0, 10);
+  const camera = new THREE.PerspectiveCamera(25, width / height, 0.1, 100);
+  camera.position.set(0, 0, 12);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(width, height);
@@ -186,7 +186,7 @@ export default function Logo3D({ modelPath }) {
   }, [modelPath]);
 
   return (
-    <div ref={mountRef} className="w-[400px] md:w-[600px] lg:w-[700px] h-[200px] md:h-[250px] lg:h-[280px] mx-auto" />
+    <div ref={mountRef} className="w-[320px] md:w-[480px] lg:w-[560px] h-[120px] md:h-[150px] lg:h-[160px] mx-auto" />
   );
 }
 

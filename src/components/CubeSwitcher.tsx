@@ -295,7 +295,7 @@ export default function CubeSwitcher() {
   const currentOpacity = selectedBox !== null ? colorOverlays[selectedBox].opacity : 0;
 
   return (
-    <div className="relative w-full h-screen bg-background overflow-hidden">
+    <div className="relative w-full h-screen bg-background overflow-y-scroll overflow-x-hidden snap-y snap-mandatory">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
       
       <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
@@ -389,11 +389,14 @@ export default function CubeSwitcher() {
       </div>
 
       <div className="
-        absolute top-0 left-0 right-0
-        h-[65vh]     /* mobile = 65% layar */
-        md:h-[70vh]  /* tablet */
-        lg:h-[78vh]  /* desktop */
+        w-full
+        h-[65vh]
+        md:h-[70vh]
+        lg:h-[78vh]
         overflow-hidden
+        snap-start
+        relative
+        z-10
       ">
         <Canvas
           camera={{ position: [5, 3, 5], fov: 50 }}

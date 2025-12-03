@@ -12,28 +12,36 @@ export default function Showcase() {
     if (!container || !content) return;
 
     let scrollX = 0;
-    const sectionWidth = window.innerWidth;
-    const maxScroll = sectionWidth; // Karena hanya 2 section
+    const maxScroll = window.innerWidth;
 
+    // HANDLE SCROLL MANUAL
     function onWheel(e: WheelEvent) {
-      e.preventDefault();                 // WAJIB: blok scroll default
-      e.stopPropagation();                // WAJIB: cegah elemen lain intercept
-
+      e.preventDefault();
       scrollX += e.deltaY;
+      scrollX = Math.max(0, Math.min(scrollX, maxScroll));
 
-      // Batasi scroll
-      if (scrollX < 0) scrollX = 0;
-      if (scrollX > maxScroll) scrollX = maxScroll;
-
-      // Gerakan smooth
       content.style.transform = `translateX(-${scrollX}px)`;
-      content.style.transition = "transform 0.3s ease-out";
+      content.style.transition = "transform 0.35s ease-out";
     }
 
-    // HARUS passive:false agar preventDefault berfungsi
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    return () => container.removeEventListener("wheel", onWheel);
+    // HANDLE KLIK TOMBOL → AUTO SLIDE KE SECTION 2
+    setTimeout(() => {
+      const btn = document.getElementById("go-cubes");
+      if (btn) {
+        btn.onclick = () => {
+          scrollX = maxScroll;
+          content.style.transform = `translateX(-${scrollX}px)`;
+          content.style.transition =
+            "transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1)";
+        };
+      }
+    }, 50);
+
+    return () => {
+      container.removeEventListener("wheel", onWheel);
+    };
   }, []);
 
   return (
@@ -42,14 +50,12 @@ export default function Showcase() {
       className="w-screen h-screen overflow-hidden bg-black relative"
       style={{ position: "relative", zIndex: 1 }}
     >
-      {/* Content Horizontal */}
       <div
         ref={contentRef}
         className="flex h-full"
         style={{
           width: "200vw",
           height: "100%",
-          display: "flex",
           willChange: "transform",
         }}
       >

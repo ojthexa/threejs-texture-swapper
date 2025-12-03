@@ -42,11 +42,12 @@ export default function Home() {
             Building excellence with innovation and precision.
           </p>
 
-          {/* CTA Button (HARUS BISA DIKLIK → pointer-events-auto) */}
+          {/* CTA Button */}
           <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
-            <a
-              href="#services"
-              className="inline-block px-8 py-4 bg-primary text-primary-foreground rounded-lg font-bold text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.5)] pointer-events-auto"
+            <a 
+              id="go-cubes"
+              className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg 
+                        font-semibold text-base hover:scale-105 transition-transform shadow-lg"
             >
               Explore Our Solutions
             </a>

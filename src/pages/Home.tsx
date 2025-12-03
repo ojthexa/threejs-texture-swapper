@@ -8,7 +8,7 @@ export default function Home({ hideNavbar = false }) {
       {!hideNavbar && <Navbar />}
 
       {/* Hero Section */}
-      <section className="h-screen w-full snap-start relative flex items-center justify-center overflow-hidden">
+      <section className="h-screen w-full snap-start relative flex items-start justify-center overflow-hidden pt-16">
         
         {/* Animated background grid */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5">
@@ -25,7 +25,7 @@ export default function Home({ hideNavbar = false }) {
         <div className="relative z-10 text-center px-6 max-w-5xl">
           
           {/* 3D Logo */}
-          <div className="flex justify-center -mt-4 md:-mt-8 lg:-mt-8 mb-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <div className="flex justify-center -mt-2 md:-mt-4 lg:-mt-6 mb-2">
             <div className="scale-[0.92] md:scale-100 lg:scale-105">
               <Logo3D modelPath={import.meta.env.BASE_URL + 'models/logo.glb'} />
             </div>

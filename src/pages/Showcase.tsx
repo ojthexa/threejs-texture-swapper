@@ -99,27 +99,35 @@ export default function Showcase() {
 
   return (
     <div ref={containerRef} className="w-screen h-screen overflow-hidden bg-black relative">
-      {isOnSecond && (
+
+      {/* HOME BUTTON — hanya muncul saat di panel Cube */}
+      {isOnSecond && !isMobileTablet() && (
         <button
           onClick={goHome}
-          className="fixed top-4 right-4 z-50 px-3 py-2 rounded-md bg-background/80 backdrop-blur border border-primary/30 text-sm shadow font-semibold">
+          className="fixed top-4 right-4 z-50 px-3 py-2 rounded-md bg-background/80 border text-sm font-semibold">
           Home
         </button>
       )}
 
-      <div
-        ref={contentRef}
-        className="flex h-full"
-        style={{ width: "100vw", willChange: "transform" }}
-      >
+      <div ref={contentRef} className="flex h-full" style={{ width: "200vw" }}>
+
+        {/* PANEL 1 — HOME (tanpa navbar) */}
         <div className="w-screen h-screen">
           <Home hideNavbar />
         </div>
 
-        <div className="w-screen h-screen">
+        {/* PANEL 2 — CUBE SWITCHER + NAVBAR */}
+        <div className="w-screen h-screen relative overflow-hidden">
+
+          {/* NAVBAR hanya tampil di panel CubeSwitcher */}
+          {isOnSecond && (
+            <Navbar mobileFull />
+          )}
+
           <CubeSwitcher />
         </div>
       </div>
     </div>
   );
+
 }

@@ -311,11 +311,12 @@ export default function CubeSwitcher() {
           </div>
         </div>
 
-      {/* Bottom Control Panel */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
-        <div className="px-4 pt-3 pb-4 flex flex-col gap-4">
+      {/* Bottom Panel – Texture Row Only */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
 
-          {/* Selected Panel Title */}
+        <div className="px-4 pt-3 pb-4 flex flex-col gap-3">
+
+          {/* Selected Title */}
           {selectedBox !== null && (
             <div className="flex items-center gap-2 mb-1">
               <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
@@ -325,30 +326,26 @@ export default function CubeSwitcher() {
             </div>
           )}
 
-          {/* ===========================================
-              TEXTURE SWITCH SECTION
-            =========================================== */}
+          {/* TEXTURE ROW + NEXT/BACK */}
           <div className="flex items-center gap-3">
 
-            {/* BACK BUTTON (MOBILE + TABLET) */}
+            {/* BACK */}
             <button
               onClick={() => {
-                const el = document.getElementById("texture-carousel");
-                if (el) el.scrollBy({ left: -150, behavior: "smooth" });
+                const el = document.getElementById("texture-row");
+                if (el) el.scrollBy({ left: -140, behavior: "smooth" });
               }}
-              className="md:flex hidden w-8 h-8 items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+              className="w-8 h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
             >
               ‹
             </button>
 
-            {/* TEXTURE CAROUSEL / GRID */}
+            {/* TEXTURE CAROUSEL (1 ROW) */}
             <div
-              id="texture-carousel"
+              id="texture-row"
               className="
-                flex-1 overflow-x-auto scrollbar-hide flex gap-3 pb-2 snap-x snap-mandatory
-                grid-cols-2 grid gap-3 sm:flex
-                sm:overflow-x-auto
-                max-sm:grid max-sm:grid-cols-2
+                flex-1 overflow-x-auto scrollbar-hide 
+                flex gap-3 pb-1 snap-x snap-mandatory
               "
             >
               {textures.map((texture) => (
@@ -357,11 +354,12 @@ export default function CubeSwitcher() {
                   onClick={() => handleTextureChange(texture.value)}
                   disabled={selectedBox === null}
                   className={`
-                    snap-start flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
+                    snap-start flex-shrink-0
+                    w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
                     ${selectedBox !== null && boxTextures[selectedBox] === texture.value
-                      ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)] scale-105"
+                      ? "border-primary shadow-[0_0_15px_hsl(var(--primary)/0.6)] scale-105"
                       : "border-border hover:border-primary/50 hover:scale-105"}
-                    ${selectedBox === null ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                    ${selectedBox === null ? "opacity-40 cursor-not-allowed" : ""}
                   `}
                 >
                   <img
@@ -369,8 +367,8 @@ export default function CubeSwitcher() {
                     alt={texture.label}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent flex items-end justify-center pb-1">
-                    <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent flex items-end justify-center pb-1">
+                    <span className="text-[8px] sm:text-[9px] font-bold text-foreground uppercase tracking-wider">
                       {texture.label}
                     </span>
                   </div>
@@ -378,33 +376,20 @@ export default function CubeSwitcher() {
               ))}
             </div>
 
-            {/* NEXT BUTTON (MOBILE + TABLET) */}
+            {/* NEXT */}
             <button
               onClick={() => {
-                const el = document.getElementById("texture-carousel");
-                if (el) el.scrollBy({ left: 150, behavior: "smooth" });
+                const el = document.getElementById("texture-row");
+                if (el) el.scrollBy({ left: 140, behavior: "smooth" });
               }}
-              className="md:flex hidden w-8 h-8 items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+              className="w-8 h-8 flex items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
             >
               ›
             </button>
 
           </div>
 
-          {/* ===========================================
-              COLOR PICKER (ROW 2)
-            =========================================== */}
-          <div className="w-full">
-            <ColorPicker
-              color={currentColor}
-              opacity={currentOpacity}
-              onColorChange={handleColorChange}
-              onOpacityChange={handleOpacityChange}
-              disabled={selectedBox === null}
-            />
-          </div>
-
-          {/* Prompt text */}
+          {/* Hint */}
           {selectedBox === null && (
             <div className="flex items-center justify-center gap-2 mt-1">
               <div className="w-1 h-1 bg-accent rounded-full animate-pulse" />
@@ -413,8 +398,26 @@ export default function CubeSwitcher() {
               </p>
             </div>
           )}
-
         </div>
+      </div>
+
+
+      {/* COLOR PICKER FIXED RIGHT */}
+      <div
+        className="
+          fixed right-2 top-1/2 -translate-y-1/2 
+          z-30 w-36 sm:w-44 lg:w-52
+          bg-background/95 backdrop-blur-lg border border-primary/40 rounded-xl shadow-xl
+          p-3
+        "
+      >
+        <ColorPicker
+          color={currentColor}
+          opacity={currentOpacity}
+          onColorChange={handleColorChange}
+          onOpacityChange={handleOpacityChange}
+          disabled={selectedBox === null}
+        />
       </div>
 
       <div className="absolute inset-0 bottom-48">

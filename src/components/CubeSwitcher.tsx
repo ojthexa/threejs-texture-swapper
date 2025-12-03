@@ -7,7 +7,7 @@ import logo from "@/assets/logo.png";
 
 type TextureType = "flower" | "mahkota" | "himawari" | "taurus" | "metal" | "sulur" | "ranting" | "spinach" | "shuriken";
 
-const boxNames = ["PANEL 1", "PANEL 2", "PANEL 3"];
+const boxNames = ["PANEL DEPAN", "PANEL KANAN", "PANEL BELAKANG", "PANEL KIRI"];
 
 function Fence({ 
   boxTextures, 
@@ -22,7 +22,7 @@ function Fence({
   setHoveredBox: (index: number | null) => void;
   selectedBox: number | null;
 }) {
-  const boxRefs = [useRef<THREE.Mesh>(null), useRef<THREE.Mesh>(null), useRef<THREE.Mesh>(null)];
+  const boxRefs = [useRef<THREE.Mesh>(null), useRef<THREE.Mesh>(null), useRef<THREE.Mesh>(null), useRef<THREE.Mesh>(null)];
   const { camera, raycaster, pointer } = useThree();
   
   const textureNames = {
@@ -96,13 +96,16 @@ function Fence({
     setHoveredBox(null);
   };
 
-  const getBoxPosition = (boxIndex: number): [number, number, number] => {
-    const boxWidth = 6;
-    return [(boxIndex - 1) * boxWidth, 0, 0];
-  };
+  // Panel positions forming a surrounding fence
+  const panelConfigs: { position: [number, number, number]; rotation: [number, number, number] }[] = [
+    { position: [0, 0, -4], rotation: [0, 0, 0] },           // Panel Depan
+    { position: [4, 0, 0], rotation: [0, Math.PI / 2, 0] },  // Panel Kanan
+    { position: [0, 0, 4], rotation: [0, Math.PI, 0] },      // Panel Belakang
+    { position: [-4, 0, 0], rotation: [0, -Math.PI / 2, 0] } // Panel Kiri
+  ];
 
   const getAnnotationPosition = (boxIndex: number): [number, number, number] => {
-    const pos = getBoxPosition(boxIndex);
+    const pos = panelConfigs[boxIndex].position;
     return [pos[0], pos[1] + 3, pos[2]];
   };
 
@@ -115,12 +118,13 @@ function Fence({
           key={index}
           ref={boxRefs[index]} 
           material={materials[index]}
-          position={getBoxPosition(index)}
+          position={panelConfigs[index].position}
+          rotation={panelConfigs[index].rotation}
           onClick={handleClick(index)}
           onPointerMove={handlePointerMove(index)}
           onPointerOut={handlePointerOut}
         >
-          <boxGeometry args={[6, 4, 0.1]} />
+          <boxGeometry args={[8, 4, 0.1]} />
         </mesh>
       ))}
       
@@ -142,7 +146,7 @@ function Fence({
 
 export default function CubeSwitcher() {
   const [boxTextures, setBoxTextures] = useState<TextureType[]>([
-    "flower", "mahkota", "himawari"
+    "flower", "mahkota", "himawari", "taurus"
   ]);
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
   const [hoveredBox, setHoveredBox] = useState<number | null>(null);

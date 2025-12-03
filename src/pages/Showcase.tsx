@@ -6,118 +6,99 @@ export default function Showcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // scrollXRef agar update tanpa render
   const scrollXRef = useRef(0);
-
-  // state untuk UI (tombol Home) — render only when needed
   const [isOnSecond, setIsOnSecond] = useState(false);
 
+  // === Detect mobile & tablet live ===
+  const isMobileTablet = () => window.innerWidth <= 1024;
+  const mq = window.matchMedia("(max-width:1024px)");
+
+  // === Navigation helper ===
+  const scrollTo = (x: number, anim = true) => {
+    const el = contentRef.current;
+    if (!el) return;
+    scrollXRef.current = x;
+    el.style.transform = `translateX(-${x}px)`;
+    el.style.transition = anim
+      ? "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
+      : "none";
+  };
+
+  const goSecond = () => {
+    scrollTo(window.innerWidth);
+    setTimeout(() => setIsOnSecond(true), 80);
+  };
+
+  const goHome = () => {
+    scrollTo(0);
+    setIsOnSecond(false);
+  };
+
+  // =============================================
+  // Initial Setup
+  // =============================================
   useEffect(() => {
     const container = containerRef.current;
     const content = contentRef.current;
     if (!container || !content) return;
 
-    const sectionWidth = window.innerWidth;
-    const maxScroll = sectionWidth;
-    const snapThreshold = 8; // toleransi px untuk menentukan "on second"
+    const maxScroll = window.innerWidth;
+    const snap = 8;
 
-    function updateIsOnSecond() {
-      const isSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      setIsOnSecond(isSecond);
-    }
+    const updateSecondState = () => {
+      setIsOnSecond(scrollXRef.current >= maxScroll - snap);
+    };
 
-    // -------------------------
-    //  SCROLL HANDLER
-    // -------------------------
-    function onWheel(e: WheelEvent) {
+    // --- Wheel Handler with Mobile Stopper ---
+    const onWheel = (e: WheelEvent) => {
+      if (isMobileTablet()) return; // stopper aktif di mobile/tablet
 
-      const isMobileOrTablet = window.innerWidth <= 1024;
-      if (isMobileOrTablet) {
-        // STOP panel horizontal, langsung biarkan canvas menerima event
-        return; 
-      }
-
-      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      if (alreadyOnSecond) return;
+      const alreadySecond = scrollXRef.current >= maxScroll - snap;
+      if (alreadySecond) return;
 
       e.preventDefault();
-      scrollXRef.current += e.deltaY;
-      scrollXRef.current = Math.max(0, Math.min(scrollXRef.current, maxScroll));
-      content.style.transform = `translateX(-${scrollXRef.current}px)`;
-      content.style.transition = "transform 0.32s ease-out";
-      updateIsOnSecond();
-    }
+      scrollXRef.current = Math.min(maxScroll, Math.max(0, scrollXRef.current + e.deltaY));
+      scrollTo(scrollXRef.current);
+      updateSecondState();
+    };
 
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    // -------------------------
-    //  BUTTON "Explore" (already in Home)
-    //  Ensure its click exists after DOM renders
-    // -------------------------
-    const setupExploreButton = () => {
+    // --- Setup Explore Button in Home ---
+    const timer = setTimeout(() => {
       const btn = document.getElementById("go-cubes");
-      if (btn) {
-        btn.onclick = () => {
-          scrollXRef.current = maxScroll;
-          content.style.transform = `translateX(-${scrollXRef.current}px)`;
-          content.style.transition =
-            "transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1)";
-          // ensure state updated
-          setTimeout(() => setIsOnSecond(true), 60);
-        };
+      btn && (btn.onclick = goSecond);
+    }, 80);
+
+    // --- Handle Responsive Resize + matchMedia change ---
+    const handleResponsive = () => {
+      if (isMobileTablet()) {
+        scrollTo(0, false);
+        setIsOnSecond(false);
+      } else if (scrollXRef.current > 0) {
+        goSecond();
       }
     };
 
-    // small timeout to wait for Home DOM (button) to appear
-    const t = setTimeout(setupExploreButton, 80);
+    window.addEventListener("resize", handleResponsive);
+    mq.addEventListener("change", handleResponsive);
 
-    // handle resize: update layout (section width) and clamp scroll
-    function handleResize() {
-      const newWidth = window.innerWidth;
-      // if section width changed (responsive), we need to adjust max and current scroll
-      // naive approach: if new width differs, remap scroll to either 0 or newWidth if near edges
-      // keep behavior simple: if we were at second, keep at second
-      if (scrollXRef.current >= maxScroll - snapThreshold) {
-        // snap to new second
-        scrollXRef.current = newWidth;
-        content.style.transform = `translateX(-${scrollXRef.current}px)`;
-      }
-    }
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
     return () => {
-      clearTimeout(t);
+      clearTimeout(timer);
       container.removeEventListener("wheel", onWheel);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleResponsive);
+      mq.removeEventListener("change", handleResponsive);
     };
   }, []);
 
-  // -------------------------
-  //  HOME BUTTON (visible only on second panel)
-  // -------------------------
-  const handleGoHome = () => {
-    const content = contentRef.current;
-    if (!content) return;
-    // animate back to 0
-    scrollXRef.current = 0;
-    content.style.transform = `translateX(-0px)`;
-    content.style.transition = "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)";
-    setIsOnSecond(false);
-  };
-
   return (
-    <div
-      ref={containerRef}
-      className="w-screen h-screen overflow-hidden bg-black relative"
-    >
-      {/* Home button shown when on CubeSwitcher (panel 2) */}
+    <div ref={containerRef} className="w-screen h-screen overflow-hidden bg-black relative">
+
+      {/* Back button only when panel-2 */}
       {isOnSecond && (
         <button
-          onClick={handleGoHome}
-          className="fixed top-4 right-4 z-50 px-3 py-2 rounded-md bg-background/80 backdrop-blur border border-primary/30 text-sm font-semibold text-foreground shadow"
-          aria-label="Back to Home"
-        >
+          onClick={goHome}
+          className="fixed top-4 right-4 z-50 px-3 py-2 rounded-md bg-background/80 backdrop-blur border border-primary/30 text-sm shadow font-semibold">
           Home
         </button>
       )}
@@ -125,18 +106,19 @@ export default function Showcase() {
       <div
         ref={contentRef}
         className="flex h-full"
-        style={{ width: "200vw", willChange: "transform" }}
-      >
-        {/* SECTION 1 */}
+        style={{ width: isMobileTablet() ? "100vw" : "200vw", willChange: "transform" }}>
+
+        {/* Panel 1 */}
         <div className="w-screen h-screen">
-          {/* hide navbar so CubeSwitcher will not show burger etc. */}
           <Home hideNavbar />
         </div>
 
-        {/* SECTION 2 */}
-        <div className="w-screen h-screen">
-          <CubeSwitcher />
-        </div>
+        {/* Panel 2 */}
+        {!isMobileTablet() && (
+          <div className="w-screen h-screen">
+            <CubeSwitcher />
+          </div>
+        )}
       </div>
     </div>
   );

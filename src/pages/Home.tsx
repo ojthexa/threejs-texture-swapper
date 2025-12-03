@@ -8,7 +8,7 @@ export default function Home({ hideNavbar = false }) {
       {!hideNavbar && <Navbar />}
 
       {/* Hero Section */}
-      <section className="h-screen w-full snap-start relative flex items-start justify-center overflow-hidden pt-16">
+      <section className="h-screen w-full snap-start relative flex items-start justify-center overflow-hidden pt-4">
         
         {/* Animated background grid */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-accent/5">

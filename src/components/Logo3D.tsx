@@ -173,11 +173,14 @@ export default function Logo3D({ modelPath }) {
       renderer.setSize(w, h);
     });
 
+    const currentMount = mountRef.current;
+    const domElement = renderer.domElement;
+    
     return () => {
       cancelAnimationFrame(rafRef.current);
       renderer.dispose();
-      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (currentMount && domElement && domElement.parentNode === currentMount) {
+        currentMount.removeChild(domElement);
       }
     };
   }, [modelPath]);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Home from "./Home";
 import CubeSwitcher from "@/components/CubeSwitcher";
+import Navbar from "@/components/Navbar"; // ⬅ WAJIB DITAMBAHKAN
 
 export default function Showcase() {
   const containerRef = useRef<HTMLDivElement>(null);

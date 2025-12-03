@@ -19,9 +19,15 @@ const App = () => (
 
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* SHOWCASE JADI HALAMAN UTAMA */}
+          <Route path="/" element={<Showcase />} />
+
+          {/* OPSIONAL */}
+          <Route path="/showcase" element={<Showcase />} />
+
           <Route path="/3d-viewer" element={<Viewer3D />} />
-          <Route path="/showcase" element={<Showcase />} />  {/* Tambahan */}
+
+          {/* fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

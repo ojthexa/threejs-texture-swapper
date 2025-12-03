@@ -74,7 +74,7 @@ function Fence({
       // Configure texture wrapping and tiling
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(4, 2);
+      texture.repeat.set(3, 2);
       texture.offset.set(0, 0);
       texture.center.set(0, 0);
       texture.needsUpdate = true;
@@ -295,7 +295,7 @@ export default function CubeSwitcher() {
   const currentOpacity = selectedBox !== null ? colorOverlays[selectedBox].opacity : 0;
 
   return (
-    <div className="relative w-full h-screen bg-background overflow-y-scroll overflow-x-hidden snap-y snap-mandatory">
+    <div className="relative w-full h-screen bg-background overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
       
       <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background/80 to-transparent backdrop-blur-sm border-b border-primary/20 z-20">
@@ -313,8 +313,6 @@ export default function CubeSwitcher() {
 
       <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
         <div className="px-6 py-4">
-
-          {/* Header nama panel */}
           {selectedBox !== null && (
             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-primary/20">
               <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
@@ -323,22 +321,9 @@ export default function CubeSwitcher() {
               </h3>
             </div>
           )}
-
-          {/* GRID RESPONSIVE: MOBILE = 2 BARIS, DESKTOP = 2 KOLOM */}
-          <div className="
-            grid 
-            grid-cols-1 
-            md:grid-cols-[1fr_auto] 
-            gap-4 
-            items-start 
-            w-full
-          ">
-
-            {/* TEXTURE SWITCHER */}
-            <div className="
-              flex gap-3 overflow-x-auto pb-2 scrollbar-hide
-              max-w-[100vw] md:max-w-full
-            ">
+          
+          <div className="flex gap-4 items-start">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1">
               {textures.map((texture) => (
                 <button
                   key={texture.value}
@@ -363,8 +348,7 @@ export default function CubeSwitcher() {
                 </button>
               ))}
             </div>
-
-            {/* COLOR PICKER */}
+            
             <ColorPicker
               color={currentColor}
               opacity={currentOpacity}
@@ -372,10 +356,8 @@ export default function CubeSwitcher() {
               onOpacityChange={handleOpacityChange}
               disabled={selectedBox === null}
             />
-
           </div>
-
-          {/* Hint saat belum pilih panel */}
+          
           {selectedBox === null && (
             <div className="flex items-center justify-center gap-2 mt-3 pt-2 border-t border-primary/20">
               <div className="w-1 h-1 bg-accent rounded-full animate-pulse" />
@@ -384,20 +366,10 @@ export default function CubeSwitcher() {
               </p>
             </div>
           )}
-
         </div>
       </div>
 
-      <div className="
-        w-full
-        h-[65vh]
-        md:h-[70vh]
-        lg:h-[78vh]
-        overflow-hidden
-        snap-start
-        relative
-        z-10
-      ">
+      <div className="absolute inset-0 bottom-48">
         <Canvas
           camera={{ position: [5, 3, 5], fov: 50 }}
           className="w-full h-full"

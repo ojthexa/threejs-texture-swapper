@@ -3,7 +3,7 @@ import Logo3D from "@/components/Logo3D";
 
 export default function Home() {
   return (
-    <div className="h-screen w-full overflow-y-auto snap-y snap-mandatory">
+    <div className="h-screen w-full relative">
       <Navbar />
 
       {/* Hero Section */}

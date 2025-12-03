@@ -15,8 +15,8 @@ export default function Logo3D({ modelPath }) {
   const width = mountRef.current.clientWidth;
   const height = mountRef.current.clientHeight;
 
-  const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
-  camera.position.set(0, 0, 8);
+  const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 100);
+  camera.position.set(0, 0, 10);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(width, height);
@@ -58,8 +58,8 @@ export default function Logo3D({ modelPath }) {
       const size = new THREE.Vector3();
       b.getSize(size);
   
-      // 🎯 Accurate pivot shift to section #2 of 5
-      pivot.position.x = -size.x * 0.18;
+      // 🎯 Pivot centered between "r" and "t" in artiKON
+      pivot.position.x = -size.x * 0.05;
     }, 20);
   
     const idealDistance = sphere.radius * 3.0;
@@ -186,7 +186,7 @@ export default function Logo3D({ modelPath }) {
   }, [modelPath]);
 
   return (
-    <div ref={mountRef} className="w-[300px] md:w-[420px] h-[280px] md:h-[320px] mx-auto" />
+    <div ref={mountRef} className="w-[400px] md:w-[600px] lg:w-[700px] h-[200px] md:h-[250px] lg:h-[280px] mx-auto" />
   );
 }
 

@@ -311,44 +311,56 @@ export default function CubeSwitcher() {
           </div>
         </div>
 
+      {/* Bottom Control Panel */}
       <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
-        <div className="px-6 py-4">
+
+        <div className="px-4 pt-3 pb-4 flex flex-col gap-4">
+
+          {/* Selected Panel Title */}
           {selectedBox !== null && (
-            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-primary/20">
+            <div className="flex items-center gap-2 mb-1">
               <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
               <h3 className="text-sm font-bold tracking-wide text-primary uppercase">
                 {boxNames[selectedBox]}
               </h3>
             </div>
           )}
-          
-          <div className="flex gap-4 items-start">
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1">
-              {textures.map((texture) => (
-                <button
-                  key={texture.value}
-                  onClick={() => handleTextureChange(texture.value)}
-                  disabled={selectedBox === null}
-                  className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                    selectedBox !== null && boxTextures[selectedBox] === texture.value
-                      ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.8)] scale-110"
-                      : "border-border hover:border-primary/50 hover:scale-105"
-                  } ${selectedBox === null ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                >
-                  <img 
-                    src={texture.image} 
-                    alt={texture.label}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex items-end justify-center pb-1">
-                    <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
-                      {texture.label}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-            
+
+          {/* ===========================================
+              ROW 1 — TEXTURE CAROUSEL (HORIZONTAL SCROLL)
+            =========================================== */}
+          <div className="w-full overflow-x-auto flex gap-3 pb-2 scrollbar-hide snap-x snap-mandatory">
+            {textures.map((texture) => (
+              <button
+                key={texture.value}
+                onClick={() => handleTextureChange(texture.value)}
+                disabled={selectedBox === null}
+                className={`
+                  snap-start flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
+                  ${selectedBox !== null && boxTextures[selectedBox] === texture.value
+                    ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)] scale-105"
+                    : "border-border hover:border-primary/50 hover:scale-105"}
+                  ${selectedBox === null ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                `}
+              >
+                <img
+                  src={texture.image}
+                  alt={texture.label}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent flex items-end justify-center pb-1">
+                  <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
+                    {texture.label}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* ===========================================
+              ROW 2 — COLOR PICKER
+            =========================================== */}
+          <div className="w-full">
             <ColorPicker
               color={currentColor}
               opacity={currentOpacity}
@@ -357,15 +369,17 @@ export default function CubeSwitcher() {
               disabled={selectedBox === null}
             />
           </div>
-          
+
+          {/* Prompt text */}
           {selectedBox === null && (
-            <div className="flex items-center justify-center gap-2 mt-3 pt-2 border-t border-primary/20">
+            <div className="flex items-center justify-center gap-2 mt-1">
               <div className="w-1 h-1 bg-accent rounded-full animate-pulse" />
-              <p className="text-xs text-muted-foreground tracking-wide uppercase">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
                 Klik pagar untuk memilih
               </p>
             </div>
           )}
+
         </div>
       </div>
 

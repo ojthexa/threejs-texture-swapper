@@ -23,9 +23,11 @@ export default function Home() {
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-5xl">
           
-          {/* 3D Logo */}
-          <div className="mb-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center">
-            <Logo3D modelPath={import.meta.env.BASE_URL + "models/logo.glb"} />
+          {/* 3D Logo (Improved Positioning) */}
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 flex justify-center pt-6 md:pt-2 lg:pt-0 mb-4">
+            <div className="scale-[0.92] md:scale-100 lg:scale-105">
+              <Logo3D modelPath={import.meta.env.BASE_URL + 'models/logo.glb'} />
+            </div>
           </div>
 
           {/* Title */}
@@ -39,7 +41,7 @@ export default function Home() {
             Building excellence with innovation and precision.
           </p>
 
-          {/* Button */}
+          {/* CTA Button */}
           <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
             <a 
               href="#services" 

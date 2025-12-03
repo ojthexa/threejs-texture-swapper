@@ -36,7 +36,7 @@ export default function Home() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+          <p className="text-sm md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
             Premium GRC materials and structural solutions for modern architecture. 
             Building excellence with innovation and precision.
           </p>

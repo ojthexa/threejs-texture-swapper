@@ -1,22 +1,29 @@
 import { Canvas, useThree, ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, useTexture, Html, Line } from "@react-three/drei";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
 
 type TextureType = "flower" | "mahkota" | "himawari" | "taurus" | "metal" | "sulur" | "ranting" | "spinach" | "shuriken";
 
+interface ColorOverlay {
+  color: string;
+  opacity: number;
+}
+
 const boxNames = ["PANEL DEPAN", "PANEL KANAN", "PANEL BELAKANG", "PANEL KIRI"];
 
 function Fence({ 
   boxTextures, 
+  colorOverlays,
   onBoxClick,
   hoveredBox,
   setHoveredBox,
   selectedBox
 }: { 
   boxTextures: TextureType[];
+  colorOverlays: ColorOverlay[];
   onBoxClick: (boxIndex: number) => void;
   hoveredBox: number | null;
   setHoveredBox: (index: number | null) => void;
@@ -60,8 +67,9 @@ function Fence({
   };
 
   const materials = useMemo(() => {
-    return boxTextures.map((textureType) => {
+    return boxTextures.map((textureType, index) => {
       const texture = textureMap[textureType];
+      const overlay = colorOverlays[index];
       
       // Configure texture wrapping and tiling
       texture.wrapS = THREE.RepeatWrapping;
@@ -71,8 +79,29 @@ function Fence({
       texture.center.set(0.5, 0.5);
       texture.needsUpdate = true;
       
+      // Parse hex color to RGB
+      const hexToRgb = (hex: string) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16) / 255,
+          g: parseInt(result[2], 16) / 255,
+          b: parseInt(result[3], 16) / 255
+        } : { r: 1, g: 1, b: 1 };
+      };
+      
+      const rgb = hexToRgb(overlay.color);
+      const opacity = overlay.opacity;
+      
+      // Blend the color with white based on opacity (multiply blend effect)
+      const blendedColor = new THREE.Color(
+        1 - opacity + rgb.r * opacity,
+        1 - opacity + rgb.g * opacity,
+        1 - opacity + rgb.b * opacity
+      );
+      
       const material = new THREE.MeshStandardMaterial({
         map: texture,
+        color: blendedColor,
         metalness: 0.3,
         roughness: 0.7,
         transparent: textureType === 'shuriken',
@@ -80,7 +109,7 @@ function Fence({
       
       return material;
     });
-  }, [boxTextures, flowerTexture, mahkotaTexture, himawariTexture, taurusTexture, metalTexture, sulurTexture, rantingTexture, spinachTexture, shurikenTexture]);
+  }, [boxTextures, colorOverlays, flowerTexture, mahkotaTexture, himawariTexture, taurusTexture, metalTexture, sulurTexture, rantingTexture, spinachTexture, shurikenTexture]);
 
   const handleClick = (boxIndex: number) => (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -144,9 +173,83 @@ function Fence({
   );
 }
 
+function ColorPicker({ 
+  color, 
+  opacity,
+  onColorChange, 
+  onOpacityChange,
+  disabled 
+}: { 
+  color: string; 
+  opacity: number;
+  onColorChange: (color: string) => void;
+  onOpacityChange: (opacity: number) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className={`flex flex-col gap-3 p-4 bg-background/90 backdrop-blur-md rounded-xl border-2 border-primary/30 ${disabled ? 'opacity-50' : ''}`}>
+      <div className="flex items-center gap-2 mb-1">
+        <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+        <span className="text-xs font-bold text-foreground uppercase tracking-wider">Color Tint</span>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => onColorChange(e.target.value)}
+            disabled={disabled}
+            className="w-12 h-12 rounded-lg cursor-pointer border-2 border-primary/50 bg-transparent"
+            style={{ 
+              WebkitAppearance: 'none',
+              padding: 0,
+            }}
+          />
+          <div 
+            className="absolute inset-0 rounded-lg pointer-events-none border-2 border-primary/30"
+            style={{ backgroundColor: color }}
+          />
+        </div>
+        
+        <div className="flex flex-col gap-1 flex-1">
+          <label className="text-[10px] text-muted-foreground uppercase tracking-wide">Intensity</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={opacity * 100}
+            onChange={(e) => onOpacityChange(Number(e.target.value) / 100)}
+            disabled={disabled}
+            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+          <span className="text-[10px] text-muted-foreground text-right">{Math.round(opacity * 100)}%</span>
+        </div>
+      </div>
+      
+      <button
+        onClick={() => {
+          onColorChange('#ffffff');
+          onOpacityChange(0);
+        }}
+        disabled={disabled}
+        className="text-[10px] text-muted-foreground hover:text-primary transition-colors uppercase tracking-wide"
+      >
+        Reset Color
+      </button>
+    </div>
+  );
+}
+
 export default function CubeSwitcher() {
   const [boxTextures, setBoxTextures] = useState<TextureType[]>([
     "flower", "mahkota", "himawari", "taurus"
+  ]);
+  const [colorOverlays, setColorOverlays] = useState<ColorOverlay[]>([
+    { color: '#ffffff', opacity: 0 },
+    { color: '#ffffff', opacity: 0 },
+    { color: '#ffffff', opacity: 0 },
+    { color: '#ffffff', opacity: 0 },
   ]);
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
   const [hoveredBox, setHoveredBox] = useState<number | null>(null);
@@ -173,6 +276,23 @@ export default function CubeSwitcher() {
     newTextures[selectedBox] = texture;
     setBoxTextures(newTextures);
   };
+
+  const handleColorChange = (color: string) => {
+    if (selectedBox === null) return;
+    const newOverlays = [...colorOverlays];
+    newOverlays[selectedBox] = { ...newOverlays[selectedBox], color };
+    setColorOverlays(newOverlays);
+  };
+
+  const handleOpacityChange = (opacity: number) => {
+    if (selectedBox === null) return;
+    const newOverlays = [...colorOverlays];
+    newOverlays[selectedBox] = { ...newOverlays[selectedBox], opacity };
+    setColorOverlays(newOverlays);
+  };
+
+  const currentColor = selectedBox !== null ? colorOverlays[selectedBox].color : '#ffffff';
+  const currentOpacity = selectedBox !== null ? colorOverlays[selectedBox].opacity : 0;
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden">
@@ -202,30 +322,40 @@ export default function CubeSwitcher() {
             </div>
           )}
           
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
-            {textures.map((texture) => (
-              <button
-                key={texture.value}
-                onClick={() => handleTextureChange(texture.value)}
-                disabled={selectedBox === null}
-                className={`relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                  selectedBox !== null && boxTextures[selectedBox] === texture.value
-                    ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.8)] scale-110"
-                    : "border-border hover:border-primary/50 hover:scale-105"
-                } ${selectedBox === null ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-              >
-                <img 
-                  src={texture.image} 
-                  alt={texture.label}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex items-end justify-center pb-2">
-                  <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">
-                    {texture.label}
-                  </span>
-                </div>
-              </button>
-            ))}
+          <div className="flex gap-4 items-start">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1">
+              {textures.map((texture) => (
+                <button
+                  key={texture.value}
+                  onClick={() => handleTextureChange(texture.value)}
+                  disabled={selectedBox === null}
+                  className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                    selectedBox !== null && boxTextures[selectedBox] === texture.value
+                      ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.8)] scale-110"
+                      : "border-border hover:border-primary/50 hover:scale-105"
+                  } ${selectedBox === null ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <img 
+                    src={texture.image} 
+                    alt={texture.label}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex items-end justify-center pb-1">
+                    <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
+                      {texture.label}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            <ColorPicker
+              color={currentColor}
+              opacity={currentOpacity}
+              onColorChange={handleColorChange}
+              onOpacityChange={handleOpacityChange}
+              disabled={selectedBox === null}
+            />
           </div>
           
           {selectedBox === null && (
@@ -251,7 +381,8 @@ export default function CubeSwitcher() {
         <pointLight position={[0, 5, 0]} intensity={0.4} color="#ff00ff" />
         
         <Fence 
-          boxTextures={boxTextures} 
+          boxTextures={boxTextures}
+          colorOverlays={colorOverlays}
           onBoxClick={handleBoxClick}
           hoveredBox={hoveredBox}
           setHoveredBox={setHoveredBox}

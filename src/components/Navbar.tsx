@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ className }: { className?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+    <nav className={`fixed top-0 left-0 right-0 z-50 mix-blend-difference ${className || ''}`}>
       <div className="container mx-auto px-6 py-4 flex items-center">
         {/* Burger di kanan */}
         <button

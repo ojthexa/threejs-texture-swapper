@@ -176,7 +176,9 @@ export default function Logo3D({ modelPath }) {
     return () => {
       cancelAnimationFrame(rafRef.current);
       renderer.dispose();
-      mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
     };
   }, [modelPath]);
 

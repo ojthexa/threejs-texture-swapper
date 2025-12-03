@@ -103,7 +103,10 @@ export default function Showcase() {
 
       {/* Navbar hanya muncul di panel CubeSwitcher */}
       {isOnSecond && (
-        <Navbar className="fixed top-0 left-0 w-[100vw] z-50" />
+        <Navbar 
+          className={`fixed top-0 left-0 w-screen z-50 transition-all duration-300
+          ${isOnSecond ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        />
       )}
 
       {/* Home Button (opsional boleh pakai/skip) */}
@@ -123,12 +126,12 @@ export default function Showcase() {
         style={{ width: "200vw", willChange: "transform" }}
       >
         {/* PANEL HOME */}
-        <section className="w-[100vw] h-screen">
+        <section className="min-w-[100vw] w-[100vw] h-screen overflow-hidden">
           <Home hideNavbar />
         </section>
 
-        {/* PANEL CUBESWITCHER (NAVBAR disini) */}
-        <section className="w-[100vw] h-screen relative">
+        {/* PANEL CUBESWITCHER */}
+        <section className="min-w-[100vw] w-[100vw] h-screen overflow-hidden">
           <CubeSwitcher />
         </section>
       </div>

@@ -58,27 +58,17 @@ function Fence({
     shuriken: "Shuriken",
   };
 
-  const flowerTexture = useTexture("/flower.jpg");
-  const mahkotaTexture = useTexture("/mahkota.jpg");
-  const himawariTexture = useTexture("/himawari.jpg");
-  const taurusTexture = useTexture("/taurus.jpg");
-  const metalTexture = useTexture("/metal.jpg");
-  const sulurTexture = useTexture("/sulur.jpg");
-  const rantingTexture = useTexture("/ranting.avif");
-  const spinachTexture = useTexture("/spinach.avif");
-  const shurikenTexture = useTexture("/shuriken.png");
-
-  const textureMap = {
-    flower: flowerTexture,
-    mahkota: mahkotaTexture,
-    himawari: himawariTexture,
-    taurus: taurusTexture,
-    metal: metalTexture,
-    sulur: sulurTexture,
-    ranting: rantingTexture,
-    spinach: spinachTexture,
-    shuriken: shurikenTexture,
-  };
+  const textureMap = useTexture({
+    flower: "/flower.jpg",
+    mahkota: "/mahkota.jpg",
+    himawari: "/himawari.jpg",
+    taurus: "/taurus.jpg",
+    metal: "/metal.jpg",
+    sulur: "/sulur.jpg",
+    ranting: "/ranting.avif",
+    spinach: "/spinach.avif",
+    shuriken: "/shuriken.png",
+  });
 
   const materials = useMemo(() => {
     return boxTextures.map((textureType, index) => {
@@ -241,14 +231,16 @@ export default function CubeSwitcher() {
   ];
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden">
       {/* HEADER */}
-      <div className="absolute top-0 z-20 flex items-center h-16 px-6 backdrop-blur-sm border-b w-full">
-        <img src={logo} className="h-7 opacity-90" />
+      <div className="absolute top-0 z-30 w-screen h-14 
+                      bg-black/40 backdrop-blur-lg border-b border-white/10
+                      md:h-16">
+          <img src={logo} className="h-7 ml-4 opacity-90" />
       </div>
 
       {/* 3D VIEW */}
-      <div className="w-full h-[70vh]">
+      <div className="w-screen h-[100vh] md:h-[85vh] overflow-hidden">
         <Canvas camera={{ position: [5, 3, 5], fov: 50 }}>
           <color attach="background" args={["#050505"]} />
           <ambientLight intensity={0.6} />
@@ -268,7 +260,10 @@ export default function CubeSwitcher() {
       </div>
 
       {/* CONTROL PANEL */}
-      <div className="absolute bottom-0 w-full p-4 bg-background/95 backdrop-blur-md border-t shadow-lg">
+      {/* CONTROL PANEL — ini letaknya di paling bawah halaman */} 
+        <div className="absolute bottom-0 w-full max-h-[38vh] 
+                        p-4 bg-background/95 backdrop-blur-md 
+                        border-t shadow-lg overflow-y-auto">
         {selectedBox !== null && (
           <h3 className="mb-2 font-semibold text-primary tracking-wide uppercase text-sm">
             {boxNames[selectedBox]}

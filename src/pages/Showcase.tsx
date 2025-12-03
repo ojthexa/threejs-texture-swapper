@@ -12,18 +12,25 @@ export default function Showcase() {
     if (!container || !content) return;
 
     let scrollX = 0;
-    const maxScroll = window.innerWidth; // 1 section width
+    const sectionWidth = window.innerWidth;
+    const maxScroll = sectionWidth; // Karena hanya 2 section
 
     function onWheel(e: WheelEvent) {
-      e.preventDefault(); // WAJIB AGAR SCROLL DIHANDLE SENDIRI
-      scrollX += e.deltaY;
-      scrollX = Math.max(0, Math.min(scrollX, maxScroll));
+      e.preventDefault();                 // WAJIB: blok scroll default
+      e.stopPropagation();                // WAJIB: cegah elemen lain intercept
 
+      scrollX += e.deltaY;
+
+      // Batasi scroll
+      if (scrollX < 0) scrollX = 0;
+      if (scrollX > maxScroll) scrollX = maxScroll;
+
+      // Gerakan smooth
       content.style.transform = `translateX(-${scrollX}px)`;
-      content.style.transition = "transform 0.35s ease-out";
+      content.style.transition = "transform 0.3s ease-out";
     }
 
-    // HARUS PASSIVE FALSE
+    // HARUS passive:false agar preventDefault berfungsi
     container.addEventListener("wheel", onWheel, { passive: false });
 
     return () => container.removeEventListener("wheel", onWheel);
@@ -32,20 +39,29 @@ export default function Showcase() {
   return (
     <div
       ref={containerRef}
-      className="w-screen h-screen overflow-hidden relative"
+      className="w-screen h-screen overflow-hidden bg-black relative"
+      style={{ position: "relative", zIndex: 1 }}
     >
+      {/* Content Horizontal */}
       <div
         ref={contentRef}
-        className="flex w-[200vw] h-full"
-        style={{ willChange: "transform" }}
+        className="flex h-full"
+        style={{
+          width: "200vw",
+          height: "100%",
+          display: "flex",
+          willChange: "transform",
+        }}
       >
-        <section className="w-screen h-screen overflow-hidden">
+        {/* SECTION 1 */}
+        <div className="w-screen h-screen relative overflow-hidden">
           <Home />
-        </section>
+        </div>
 
-        <section className="w-screen h-screen overflow-hidden">
+        {/* SECTION 2 */}
+        <div className="w-screen h-screen relative overflow-hidden">
           <CubeSwitcher />
-        </section>
+        </div>
       </div>
     </div>
   );

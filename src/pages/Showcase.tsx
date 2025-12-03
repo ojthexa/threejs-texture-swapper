@@ -6,7 +6,10 @@ export default function Showcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // scroll X value tanpa trigger render
   const scrollXRef = useRef(0);
+
+  // untuk tombol Home (jika sudah sampai panel CubeSwitcher)
   const [isOnSecond, setIsOnSecond] = useState(false);
 
   useEffect(() => {
@@ -14,21 +17,28 @@ export default function Showcase() {
     const content = contentRef.current;
     if (!container || !content) return;
 
-    let sectionWidth = container.offsetWidth;
-    let maxScroll = sectionWidth;
+    /* ==========================================
+       HITUNG LEBAR PANEL
+       ========================================== */
+    let panelWidth = window.innerWidth; // 100vw
+    let maxScroll = panelWidth;         // pindah 1 panel ke kanan
+
     const snapThreshold = 12;
 
     const updateIsOnSecond = () => {
-      const isSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      setIsOnSecond(isSecond);
+      setIsOnSecond(scrollXRef.current >= maxScroll - snapThreshold);
     };
 
-    /* ----------------------
-       DESKTOP WHEEL HANDLER
-    ----------------------- */
+    /* ==========================================
+       DESKTOP WHEEL SCROLL
+       ========================================== */
     function onWheel(e: WheelEvent) {
-      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      if (alreadyOnSecond) return;
+      const atSecond = scrollXRef.current >= maxScroll - snapThreshold;
+
+      if (atSecond) {
+        // biarkan wheel ke OrbitControls
+        return;
+      }
 
       e.preventDefault();
 
@@ -43,31 +53,30 @@ export default function Showcase() {
 
     container.addEventListener("wheel", onWheel, { passive: false });
 
-    /* -------------------------
-        MOBILE TOUCH SCROLL
-    -------------------------- */
-
-    let touchStartX = 0;
+    /* ==========================================
+       MOBILE TOUCH SWIPE 
+       ========================================== */
+    let touchX = 0;
 
     function onTouchStart(e: TouchEvent) {
-      touchStartX = e.touches[0].clientX;
+      touchX = e.touches[0].clientX;
     }
 
     function onTouchMove(e: TouchEvent) {
-      const deltaX = touchStartX - e.touches[0].clientX;
+      const delta = touchX - e.touches[0].clientX;
 
-      const alreadyOnSecond = scrollXRef.current >= maxScroll - snapThreshold;
-      if (alreadyOnSecond) return;
+      const atSecond = scrollXRef.current >= maxScroll - snapThreshold;
+      if (atSecond) return; // biarkan canvas
 
       e.preventDefault();
 
-      scrollXRef.current += deltaX;
+      scrollXRef.current += delta;
       scrollXRef.current = Math.max(0, Math.min(scrollXRef.current, maxScroll));
 
       content.style.transform = `translateX(-${scrollXRef.current}px)`;
       content.style.transition = "transform 0.25s ease-out";
 
-      touchStartX = e.touches[0].clientX;
+      touchX = e.touches[0].clientX;
 
       updateIsOnSecond();
     }
@@ -75,11 +84,10 @@ export default function Showcase() {
     container.addEventListener("touchstart", onTouchStart, { passive: false });
     container.addEventListener("touchmove", onTouchMove, { passive: false });
 
-    /* -------------------------
-        EXPLORE BUTTON
-    -------------------------- */
-
-    const setupExploreButton = () => {
+    /* ==========================================
+       EXPLORE BUTTON DI HOME
+       ========================================== */
+    const setupButton = () => {
       const btn = document.getElementById("go-cubes");
       if (btn) {
         btn.onclick = () => {
@@ -92,26 +100,25 @@ export default function Showcase() {
       }
     };
 
-    const t = setTimeout(setupExploreButton, 100);
+    const t = setTimeout(setupButton, 100);
 
-    /* -------------------------
-        RESPONSIVE FIX
-    -------------------------- */
+    /* ==========================================
+       RESPONSIVE RESIZE
+       ========================================== */
     function handleResize() {
-      const newWidth = container.offsetWidth;
+      panelWidth = window.innerWidth;
+      maxScroll = panelWidth;
 
-      // jika sedang di panel 2, tetap di panel 2
+      // Bila sedang di panel 2 → tetap di panel 2 setelah resize
       if (scrollXRef.current >= maxScroll - snapThreshold) {
-        scrollXRef.current = newWidth;
+        scrollXRef.current = maxScroll;
         content.style.transform = `translateX(-${scrollXRef.current}px)`;
       }
-
-      sectionWidth = newWidth;
-      maxScroll = newWidth;
     }
 
     window.addEventListener("resize", handleResize);
 
+    /* CLEANUP */
     return () => {
       clearTimeout(t);
       container.removeEventListener("wheel", onWheel);
@@ -121,13 +128,18 @@ export default function Showcase() {
     };
   }, []);
 
+  /* ==========================================
+     TOMBOL HOME (BACK TO PANEL 1)
+     ========================================== */
   const handleGoHome = () => {
     const content = contentRef.current;
     if (!content) return;
 
     scrollXRef.current = 0;
+
     content.style.transform = `translateX(0px)`;
     content.style.transition = "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)";
+
     setIsOnSecond(false);
   };
 
@@ -145,18 +157,21 @@ export default function Showcase() {
         </button>
       )}
 
+      {/* ==========================================
+          HORIZONTAL 2-PANEL LAYOUT (SOLID & RESPONSIVE)
+         ========================================== */}
       <div
         ref={contentRef}
         className="flex h-full"
-        style={{ width: "200vw", willChange: "transform" }}
+        style={{ willChange: "transform" }}
       >
-        {/* SECTION 1 */}
-        <div className="min-w-[100vw] min-h-[100vh]">
+        {/* PANEL 1 (HOME) */}
+        <div className="w-[100vw] h-[100vh] shrink-0">
           <Home hideNavbar />
         </div>
 
-        {/* SECTION 2 */}
-        <div className="min-w-[100vw] min-h-[100vh] overflow-hidden">
+        {/* PANEL 2 (CUBESWITCHER) */}
+        <div className="w-[100vw] h-[100vh] shrink-0 overflow-hidden">
           <CubeSwitcher />
         </div>
       </div>

@@ -313,7 +313,6 @@ export default function CubeSwitcher() {
 
       {/* Bottom Control Panel */}
       <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-t border-primary/30 shadow-[0_-5px_30px_hsl(var(--primary)/0.3)]">
-
         <div className="px-4 pt-3 pb-4 flex flex-col gap-4">
 
           {/* Selected Panel Title */}
@@ -327,38 +326,73 @@ export default function CubeSwitcher() {
           )}
 
           {/* ===========================================
-              ROW 1 — TEXTURE CAROUSEL (HORIZONTAL SCROLL)
+              TEXTURE SWITCH SECTION
             =========================================== */}
-          <div className="w-full overflow-x-auto flex gap-3 pb-2 scrollbar-hide snap-x snap-mandatory">
-            {textures.map((texture) => (
-              <button
-                key={texture.value}
-                onClick={() => handleTextureChange(texture.value)}
-                disabled={selectedBox === null}
-                className={`
-                  snap-start flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
-                  ${selectedBox !== null && boxTextures[selectedBox] === texture.value
-                    ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)] scale-105"
-                    : "border-border hover:border-primary/50 hover:scale-105"}
-                  ${selectedBox === null ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
-                `}
-              >
-                <img
-                  src={texture.image}
-                  alt={texture.label}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent flex items-end justify-center pb-1">
-                  <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
-                    {texture.label}
-                  </span>
-                </div>
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+
+            {/* BACK BUTTON (MOBILE + TABLET) */}
+            <button
+              onClick={() => {
+                const el = document.getElementById("texture-carousel");
+                if (el) el.scrollBy({ left: -150, behavior: "smooth" });
+              }}
+              className="md:flex hidden w-8 h-8 items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+            >
+              ‹
+            </button>
+
+            {/* TEXTURE CAROUSEL / GRID */}
+            <div
+              id="texture-carousel"
+              className="
+                flex-1 overflow-x-auto scrollbar-hide flex gap-3 pb-2 snap-x snap-mandatory
+                grid-cols-2 grid gap-3 sm:flex
+                sm:overflow-x-auto
+                max-sm:grid max-sm:grid-cols-2
+              "
+            >
+              {textures.map((texture) => (
+                <button
+                  key={texture.value}
+                  onClick={() => handleTextureChange(texture.value)}
+                  disabled={selectedBox === null}
+                  className={`
+                    snap-start flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 relative transition-all duration-300
+                    ${selectedBox !== null && boxTextures[selectedBox] === texture.value
+                      ? "border-primary shadow-[0_0_20px_hsl(var(--primary)/0.6)] scale-105"
+                      : "border-border hover:border-primary/50 hover:scale-105"}
+                    ${selectedBox === null ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                  `}
+                >
+                  <img
+                    src={texture.image}
+                    alt={texture.label}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent flex items-end justify-center pb-1">
+                    <span className="text-[9px] font-bold text-foreground uppercase tracking-wider">
+                      {texture.label}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* NEXT BUTTON (MOBILE + TABLET) */}
+            <button
+              onClick={() => {
+                const el = document.getElementById("texture-carousel");
+                if (el) el.scrollBy({ left: 150, behavior: "smooth" });
+              }}
+              className="md:flex hidden w-8 h-8 items-center justify-center rounded-md border border-primary/40 hover:bg-primary/20"
+            >
+              ›
+            </button>
+
           </div>
 
           {/* ===========================================
-              ROW 2 — COLOR PICKER
+              COLOR PICKER (ROW 2)
             =========================================== */}
           <div className="w-full">
             <ColorPicker
